@@ -1,0 +1,23 @@
+{
+    "/minecraft/vanilla/": {
+        "name": "Minecraft Vanilla"
+    },
+    "/minecraft/default/": {
+        "name": "Minecraft"
+    },
+    "/minecraft/paper/": {
+        "name": "Minecraft (Paper)"
+    },
+    "/minecraft/modded/fabric/": {
+        "name": "Minecraft Fabric"
+    },
+    "/minecraft/modded/forge/": {
+        "name": "Minecraft Forge"
+    },
+    "/minecraft/bedrock/": {
+        "name": "Minecraft Bedrock"
+    },
+    "/minecraft/pocketmine/": {
+        "name": "Pocketmine MP"
+    }
+}

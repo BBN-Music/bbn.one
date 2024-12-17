@@ -1,0 +1,28 @@
+{
+    "deno.enable": true,
+    "deno.lint": true,
+    "typescript.validate.enable": true,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": null,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "[typescript]": {
+        "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "deno.cacheOnSave": true,
+    "deno.suggest.imports.autoDiscover": true,
+    "typescript.suggest.autoImports": true,
+    "deno.suggest.imports.hosts": {
+        "https://deno.land": true,
+        "https://esm.sh": true
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.ts": "${capture}.css"
+    }
+}
