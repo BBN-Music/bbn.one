@@ -1,26 +1,43 @@
 import { showPreviewImage } from "shared/helper.ts";
 import { placeholder } from "shared/list.ts";
-import { asRef, Box, Empty, Entry, Grid, Image, Label } from "webgen/mod.ts";
+import { asRef, Empty, Entry, Grid, Image, Label } from "webgen/mod.ts";
 import { templateArtwork } from "../../../assets/imports.ts";
 import { type Artist, Drop, DropType } from "../../../spec/music.ts";
 
 export function DropEntry(x: Drop) {
-    return Entry(Grid(
-        Label(x.title ?? "(no drop name)"),
-        Label(`${x.release ?? "(no release date)"} - ${x.gtin ?? "(no GTIN)"}`),
-    ))
-        .addPrefix(showPreviewImage(x))
-        .addSuffix((() => {
-            if (x.type == DropType.UnderReview) {
-                return Label("Under Review");
-            }
+    return Entry(
+        Grid(
+            Grid(
+                Label(x.title ?? "(no drop name)").setFontWeight("bold").setTextSize("3xl"),
+                Label(`${x.release ?? "(no release date)"} - ${x.gtin ?? "(no GTIN)"}`),
+            )
+                .setHeight("max-content")
+                .setAlignSelf("center"),
+        )
+            .setGap()
+            .setTemplateColumns("max-content auto min-content")
+            .setPadding("1rem 0")
+            .addPrefix(showPreviewImage(x).setWidth("100px"))
+            .addSuffix((() => {
+                if (x.type == DropType.UnderReview) {
+                    return Label("Under Review")
+                        .setCssStyle("backgroundColor", "#BCBCBC")
+                        .setCssStyle("borderRadius", "10rem")
+                        .setHeight("max-content")
+                        .setAlignSelf("center");
+                }
 
-            if (x.type == DropType.ReviewDeclined) {
-                return Label("Declined");
-            }
+                if (x.type == DropType.ReviewDeclined) {
+                    return Label("Declined")
+                        .setCssStyle("backgroundColor", "#BCBCBC")
+                        .setCssStyle("borderRadius", "10rem")
+                        .setHeight("max-content")
+                        .setAlignSelf("center");
+                }
 
-            return Empty();
-        })())
+                return Empty();
+            })()),
+    )
         .onClick(() => location.href = x.type === DropType.Unsubmitted ? `/c/music/new-drop?id=${x._id}` : `/c/music/edit?id=${x._id}`);
 }
 
@@ -57,10 +74,10 @@ export function CategoryRender(dropList: Drop[], title: string) {
     if (dropList.length == 0) {
         return Empty();
     }
-    return Box(
-        Label(title),
-        Grid(asRef(dropList.map((x) => DropEntry(x)))).setGap("1rem"),
-    );
+    return Grid(
+        Label(title).setFontWeight("bold").setTextSize("4xl"),
+        Grid(asRef(dropList.map((x) => DropEntry(x)))).setGap(),
+    ).setGap();
 }
 
 export function EnumToDisplay(state: DropType) {
