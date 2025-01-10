@@ -34,7 +34,6 @@ export const creationState = asRefRecord({
     compositionCopyright: <string | undefined> undefined,
     soundRecordingCopyright: <string | undefined> undefined,
     artwork: <string | undefined> undefined,
-    artworkClientData: <Blob | undefined> undefined,
     uploadingSongs: <Record<string, number>[]> [],
     songs: <Song[]> [],
     comments: <string | undefined> undefined,
@@ -43,7 +42,7 @@ export const creationState = asRefRecord({
 });
 
 API.music.id(dropId).get().then(stupidErrorAlert)
-    .then(async (drop) => {
+    .then((drop) => {
         creationState.gtin.setValue(drop.gtin);
         creationState.title.setValue(drop.title);
         creationState.release.setValue(drop.release);
@@ -54,7 +53,6 @@ API.music.id(dropId).get().then(stupidErrorAlert)
         creationState.compositionCopyright.setValue(drop.compositionCopyright ?? "BBN Music (via bbn.one)");
         creationState.soundRecordingCopyright.setValue(drop.soundRecordingCopyright ?? "BBN Music (via bbn.one)");
         creationState.artwork.setValue(drop.artwork);
-        creationState.artworkClientData.setValue(<Blob | undefined> (drop.artwork ? await API.music.id(dropId).artwork().then(stupidErrorAlert) : undefined));
         creationState.songs.setValue(drop.songs ?? []);
         creationState.comments.setValue(drop.comments);
     })
@@ -96,6 +94,12 @@ const footer = (page: number) =>
         .setGap()
         .setTemplateColumns("1fr auto 1fr");
 
+creationState.primaryGenre.listen((_, old) => {
+    if (old !== undefined) {
+        creationState.secondaryGenre.setValue(undefined);
+    }
+});
+
 const wizard = creationState.page.map((page) => {
     if (page == 0) {
         return Spinner();
@@ -109,20 +113,18 @@ const wizard = creationState.page.map((page) => {
                     DropDown(Object.keys(language), creationState.language, "Language")
                         .setValueRender((key) => language[<keyof typeof language> key]),
                 )
-                    .setEvenColumns(2)
-                    // .setEvenColumns(small ? 1 : 2)
+                    .setDynamicColumns(15)
                     .setGap(),
                 PrimaryButton("Artists")
                     .onClick(() => sheetStack.addSheet(EditArtistsDialog(creationState.artists))),
                 Label("Set your target Audience").setFontWeight("bold").setTextSize("xl").setJustifySelf("center"),
                 Grid(
                     DropDown(Object.keys(genres), creationState.primaryGenre, "Primary Genre"),
-                    // .onChange(() => creationState.secondaryGenre.setValue(undefined)), //move to listen
                     Box(creationState.primaryGenre.map((primaryGenre) => DropDown(getSecondary(genres, primaryGenre) ?? [], creationState.secondaryGenre, "Secondary Genre") // .setColor(getSecondary(genres, primaryGenre) ? Color.Grayscaled : Color.Disabled)
                     )),
                 )
                     .setGap()
-                    .setEvenColumns(2),
+                    .setDynamicColumns(15),
                 PrimaryButton("Additional Information")
                     .onClick(() => sheetStack.addSheet(additionalDropInformation)),
             )
@@ -201,7 +203,7 @@ appendBody(
             FullWidthSection(
                 DynaNavigation("Music"),
             ),
-            Box(wizard),
+            Box(wizard).setMargin("30% 0"),
         )
             .setContentMaxWidth("50%"),
     ).setPrimaryColor(new Color("white")),
