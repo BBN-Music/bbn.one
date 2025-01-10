@@ -1,8 +1,8 @@
+import { RegisterAuthRefresh, renewAccessTokenIfNeeded, sheetStack } from "shared/helper.ts";
 import { API, stupidErrorAlert } from "shared/mod.ts";
 import { appendBody, asRef, Box, Color, Content, DialogContainer, FullWidthSection, Grid, Label, PrimaryButton, Spinner, Table, WebGenTheme } from "webgen/mod.ts";
 import { DynaNavigation } from "../../components/nav.ts";
 import { AccountType, Wallet } from "../../spec/music.ts";
-import { RegisterAuthRefresh, renewAccessTokenIfNeeded, sheetStack } from "../shared/helper.ts";
 
 await RegisterAuthRefresh();
 
@@ -58,7 +58,9 @@ appendBody(
                                 .setCssStyle("background", "#181010")
                                 .setPadding("1rem")
                                 .setCssStyle("borderRadius", "var(--wg-radius-mid)"),
-                        ).setTemplateColumns("50% 25% 25%").setGap(),
+                        )
+                            .setTemplateColumns("50% 25% 25%")
+                            .setGap(),
                         Table(
                             asRef(wallet.transactions.map((x) => {
                                 const { amount, description, counterParty, timestamp } = x;
@@ -85,7 +87,9 @@ appendBody(
                                 },
                             }),
                         ),
-                    ).setGap().setMargin("5rem 0 2rem")
+                    )
+                        .setGap()
+                        .setMargin("5rem 0 2rem")
                     : Spinner()
             )),
         ),

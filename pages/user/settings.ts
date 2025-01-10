@@ -1,6 +1,6 @@
-import { activeUser, ErrorMessage, IsLoggedIn, RegisterAuthRefresh, sheetStack, showProfilePicture } from "shared/helper.ts";
+import { activeUser, ErrorMessage, IsLoggedIn, logOut, RegisterAuthRefresh, sheetStack, showProfilePicture } from "shared/helper.ts";
 import { API, stupidErrorAlert } from "shared/restSpec.ts";
-import { appendBody, asRefRecord, Content, DialogContainer, EmailInput, FullWidthSection, Grid, PasswordInput, PrimaryButton, TextInput, WebGenTheme } from "webgen/mod.ts";
+import { appendBody, asRefRecord, Color, Content, DialogContainer, EmailInput, FullWidthSection, Grid, PasswordInput, PrimaryButton, TextInput, WebGenTheme } from "webgen/mod.ts";
 import { z } from "zod/mod.ts";
 import "../../assets/css/main.css";
 import { DynaNavigation } from "../../components/nav.ts";
@@ -44,6 +44,7 @@ appendBody(WebGenTheme(
                     state.validationState.setValue(getErrorMessage(validator));
                 }
             }),
+            PrimaryButton("Logout").setCustomColor(new Color("red")).onClick(() => logOut()),
             ErrorMessage(state.validationState),
         ).setGap(),
     ),
