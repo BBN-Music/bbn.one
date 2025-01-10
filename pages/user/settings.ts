@@ -1,5 +1,6 @@
-import { RegisterAuthRefresh } from "shared/helper.ts";
-import { appendBody, asRefRecord, Empty, WebGenTheme } from "webgen/mod.ts";
+import { activeUser, ErrorMessage, IsLoggedIn, RegisterAuthRefresh, sheetStack, showProfilePicture } from "shared/helper.ts";
+import { API, stupidErrorAlert } from "shared/restSpec.ts";
+import { appendBody, asRefRecord, Content, DialogContainer, EmailInput, FullWidthSection, Grid, PasswordInput, PrimaryButton, TextInput, WebGenTheme } from "webgen/mod.ts";
 import { z } from "zod/mod.ts";
 import "../../assets/css/main.css";
 import { DynaNavigation } from "../../components/nav.ts";
@@ -7,83 +8,55 @@ import { DynaNavigation } from "../../components/nav.ts";
 await RegisterAuthRefresh();
 
 const state = asRefRecord({
-    newPassword: <string | undefined> undefined,
-    verifyNewPassword: <string | undefined> undefined,
-    validationState: <z.ZodError | undefined> undefined,
+    email: activeUser.email.value ?? "",
+    name: activeUser.username.value,
+    password: "",
+    verifyNewPassword: "",
+    validationState: <string | undefined> undefined,
 });
 
-// const settingsMenu = Navigation({
-//     title: "Settings",
-//     children: [
-//         {
-//             id: "personal",
-//             title: "Personal",
-//             subtitle: "Username, Email, Profile Picture...",
-//             children: [
-//                 ChangePersonal(),
-//             ],
-//         },
-//         {
-//             id: "change-password",
-//             title: "Change Password",
-//             children: [
-//                 Vertical(
-//                     Grid([
-//                         { width: 2 },
-//                         Vertical(
-//                             TextInput("password", "New Password").ref(state.$newPassword),
-//                             TextInput("password", "Verify New Password").ref(state.$verifyNewPassword),
-//                         ).setGap("20px"),
-//                     ])
-//                         .setDynamicColumns(1, "12rem")
-//                         .setJustifyContent("center")
-//                         .setGap("15px"),
-//                     Horizontal(
-//                         Spacer(),
-//                         Box(
-//                             state.$validationState.map((error) =>
-//                                 error
-//                                     ? CenterV(
-//                                         Label(getErrorMessage(error))
-//                                             .addClass("error-message")
-//                                             .setMargin("0 0.5rem 0 0"),
-//                                     )
-//                                     : Empty()
-//                             ).asRefComponent(),
-//                         ),
-//                         Button("Save").onClick(async () => {
-//                             const { error, validate } = Validate(
-//                                 state,
-//                                 zod.object({
-//                                     newPassword: zod.string({ invalid_type_error: "New password is missing" }).min(8),
-//                                     verifyNewPassword: zod.string({ invalid_type_error: "Verify New password is missing" }).min(8).refine((val) => val == state.newPassword, "Your new password didn't match"),
-//                                 }),
-//                             );
-
-//                             const data = validate();
-//                             if (error.getValue()) return state.validationState = error.getValue();
-//                             if (data) await API.user.setMe.post({ password: data.newPassword });
-//                             logOut();
-//                             state.validationState = undefined;
-//                         }),
-//                     ),
-//                 ).setGap("20px"),
-//             ],
-//         },
-//         {
-//             id: "logout",
-//             title: "Logout",
-//             clickHandler: () => logOut(),
-//         },
-//     ],
-// }).addClass(
-//     isMobile.map((mobile) => mobile ? "mobile-navigation" : "navigation"),
-//     "limited-width",
-// );
 appendBody(WebGenTheme(
-    DynaNavigation("Settings"),
-    Empty(),
+    DialogContainer(sheetStack.visible(), sheetStack),
+    Content(
+        FullWidthSection(
+            DynaNavigation("Settings"),
+        ),
+        Grid(
+            showProfilePicture(IsLoggedIn()!).setWidth("300px").setJustifySelf("center"),
+            Grid(
+                TextInput(state.name, "Name"),
+                EmailInput(state.email, "Email"),
+                PasswordInput(state.password, "New Password"),
+                PasswordInput(state.verifyNewPassword, "Verify New Password"),
+            ).setDynamicColumns(20).setGap(),
+            PrimaryButton("Save").onPromiseClick(async () => {
+                const validator = z.object({
+                    name: z.string().min(2),
+                    email: z.string().email(),
+                    password: z.string().min(8).or(z.literal("")),
+                    verifyNewPassword: z.string().min(8).refine((val) => state.password ? val == state.password.value : true, { message: "Your new password didn't match" }).or(z.literal("")),
+                }).safeParse(Object.fromEntries(Object.entries(state).map(([key, state]) => [key, state.value])));
+
+                if (validator.success) {
+                    state.validationState.setValue(undefined);
+                    await API.user.setMe.post(validator.data).then(stupidErrorAlert);
+                } else {
+                    state.validationState.setValue(getErrorMessage(validator));
+                }
+            }),
+            ErrorMessage(state.validationState),
+        ).setGap(),
+    ),
 ));
+
+export function getErrorMessage(state: z.SafeParseReturnType<any, any>): string {
+    if (!(state && state.success !== true)) return "";
+    const selc = state.error.errors.find((x) => x.code == "custom" && x.message != "Invalid input") ?? state.error.errors.find((x) => x.message != "Required") ?? state.error.errors[0];
+
+    const path = selc.path.map((x) => typeof x == "number" ? `[${x}]` : x.replace(/^./, (str) => str.toUpperCase())).join("");
+
+    return `${path}: ${selc.message}`;
+}
 
 // const publicKey = {
 //                     challenge: new Uint8Array([ 117, 61, 252, 231, 191, 241 ]),

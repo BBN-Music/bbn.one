@@ -23,6 +23,7 @@ export const loginRequired = [
     "/admin",
     "/oauth",
     "/wallet",
+    "/settings",
 ];
 
 export function activeLogo(type: NavigationType) {

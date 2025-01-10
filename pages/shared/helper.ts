@@ -1,7 +1,7 @@
 import { fail } from "@std/assert/fail";
 import { LruCache, memoize } from "@std/cache";
 import { API, fileCache, Permission, stupidErrorAlert } from "shared/mod.ts";
-import { asRef, asRefRecord, Async, Component, DropDown, Grid, Image, ImageComponent, PrimaryButton, SheetHeader, Sheets, Spinner, WriteSignal } from "webgen/mod.ts";
+import { asRef, asRefRecord, Async, Box, Component, DropDown, Empty, Grid, Image, ImageComponent, Label, PrimaryButton, SheetHeader, Sheets, Spinner, WriteSignal } from "webgen/mod.ts";
 import { templateArtwork } from "../../assets/imports.ts";
 import { loginRequired } from "../../components/pages.ts";
 import { Drop, Song } from "../../spec/music.ts";
@@ -150,6 +150,8 @@ export async function RegisterAuthRefresh() {
         console.error(error);
     }
 }
+
+export const ErrorMessage = (message: WriteSignal<string | undefined>) => Box(message.map((x) => x ? Label(x).setPadding("var(--wg-button-padding, 5px 10px)").setCssStyle("color", "red").setCssStyle("borderRadius", "var(--wg-checkbox-border-radius, var(--wg-radius-tiny))").setCssStyle("backgroundColor", "#2e0000") : Empty()));
 
 function shouldLoginPage() {
     if (!loginRequired.find((x) => location.pathname.startsWith(x))) {

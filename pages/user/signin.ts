@@ -1,8 +1,8 @@
 import { assert } from "@std/assert";
 import { Footer } from "shared/footer.ts";
-import { RegisterAuthRefresh } from "shared/helper.ts";
+import { ErrorMessage, RegisterAuthRefresh } from "shared/helper.ts";
 import { API } from "shared/mod.ts";
-import { appendBody, Box, Color, Content, css, EmailInput, Empty, FullWidthSection, Grid, Image, isMobile, Label, mediaQueryRef, PasswordInput, PrimaryButton, Spinner, TextButton, TextInput, WebGenTheme, WriteSignal } from "webgen/mod.ts";
+import { appendBody, Box, Color, Content, css, EmailInput, Empty, FullWidthSection, Grid, Image, isMobile, Label, mediaQueryRef, PasswordInput, PrimaryButton, Spinner, TextButton, TextInput, WebGenTheme } from "webgen/mod.ts";
 import "../../assets/css/main.css";
 import { background, discordLogo, googleLogo } from "../../assets/imports.ts";
 import { DynaNavigation } from "../../components/nav.ts";
@@ -16,8 +16,6 @@ document.adoptedStyleSheets.push(css`
         background-color: var(--bg-color);
     }
 `);
-
-const ErrorMessage = (message: WriteSignal<string | undefined>) => message.value ? Label(message).setPadding("var(--wg-button-padding, 5px 10px)").setCssStyle("color", "red").setCssStyle("borderRadius", "var(--wg-checkbox-border-radius, var(--wg-radius-tiny))").setCssStyle("backgroundColor", "#2e0000") : Empty();
 
 const isLightMode = mediaQueryRef("(prefers-color-scheme: light)");
 
