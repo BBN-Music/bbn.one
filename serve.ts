@@ -69,7 +69,7 @@ serve({
         "./polyfill.ts",
         "./bug-reporter.ts",
         "https://cdn.jsdelivr.net/npm/native-file-system-adapter@3.0.1/mod.js",
-        "https://unpkg.com/urlpattern-polyfill",
+        "https://unpkg.com/urlpattern-polyfill@10.0.0/index.js",
         "https://esm.sh/@virtualstate/navigation@1.0.1-alpha.206/polyfill",
     ],
 });
