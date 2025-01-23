@@ -1,6 +1,7 @@
 import { API, stupidErrorAlert } from "shared/restSpec.ts";
 import { asRef, Box, Content, createPage, createRoute, Entry, Grid, Label, Spinner } from "webgen/mod.ts";
 import { Artist } from "../../../spec/music.ts";
+import { ArtistEntry } from "../views/list.ts";
 
 const data = asRef<"loading" | Artist[]>("loading");
 
@@ -24,11 +25,7 @@ export const artistsPage = createPage(
         Box(data.map((data) => data === "loading" ? Spinner() : [])),
         Grid(
             source.map((items) =>
-                items.map((item) =>
-                    Entry(
-                        Label(item.name),
-                    )
-                )
+                items.map(ArtistEntry)
             ),
         ),
     ),

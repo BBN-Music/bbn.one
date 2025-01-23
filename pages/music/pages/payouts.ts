@@ -26,7 +26,11 @@ export const payoutsPage = createPage(
             source.map((items) =>
                 items.map((item) =>
                     Entry(
-                        Label(item.period),
+                        Grid(
+                            Label(item.period).setTextSize("3xl").setFontWeight("bold"),
+                            Label(item.moneythisperiod + " Earnings"),
+                            Label(item.streams + " Streams"),
+                        ).setPadding("1rem 0"),
                     )
                 )
             ),

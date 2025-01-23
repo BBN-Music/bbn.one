@@ -42,18 +42,26 @@ export function DropEntry(x: Drop) {
 }
 
 export function ArtistEntry(x: Artist) {
-    return Entry({
-        title: x.name,
-        // TODO: Add used on x songs, x drops, maybe even streams?
-    })
-        //TODO: links
-        // .addSuffix(
-        //     Horizontal(
-        //         LinkButton("Spotify", "fdgdf"),
-        //         LinkButton("Apple Music", "fdgdf"),
-        //     ).setGap(),
-        // )
-        .addPrefix(Image(templateArtwork, "Artist Profile Picture"));
+    return Entry(
+        Grid(
+            Grid(
+                Label(x.name).setTextSize("3xl").setFontWeight("bold"),
+                // TODO: Add used on x songs, x drops, maybe even streams?
+                // Label("Used on ")
+            ).setAlignSelf("center").setHeight("max-content"),
+        )
+            .setGap()
+            .setTemplateColumns("max-content auto min-content")
+            .setPadding("1rem 0")
+            .addPrefix(Image(templateArtwork, "Artist Profile Picture").setWidth("100px")),
+    );
+    //TODO: links
+    // .addSuffix(
+    //     Horizontal(
+    //         LinkButton("Spotify", "fdgdf"),
+    //         LinkButton("Apple Music", "fdgdf"),
+    //     ).setGap(),
+    // )
 }
 
 export const musicList = (list: Drop[], type: DropType) =>
