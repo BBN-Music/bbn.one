@@ -203,7 +203,7 @@ appendBody(
             FullWidthSection(
                 DynaNavigation("Music"),
             ),
-            Box(wizard).setMargin("30% 0"),
+            Box(wizard),
         )
             .setContentMaxWidth("50%"),
     ).setPrimaryColor(new Color("white")),

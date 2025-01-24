@@ -1,6 +1,6 @@
 import { sheetStack } from "shared/helper.ts";
 import { API, stupidErrorAlert } from "shared/mod.ts";
-import { asRef, asRefRecord, Box, DropDown, Grid, PrimaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
+import { asRef, asRefRecord, Box, DropDown, Grid, Label, MaterialIcon, PrimaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
 import { Artist, ArtistRef, ArtistTypes, Song } from "../../../spec/music.ts";
 import "./table.css";
 
@@ -86,7 +86,7 @@ export const createArtistSheet = (name?: string) => {
 };
 
 export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: Artist[]) => {
-    const artistList = provided ? asRef(provided) : asRef(<Artist[]> []);
+    const artistList = provided ? asRef(provided) : asRef<Artist[]>([]);
 
     if (!provided) {
         API.music.artists.list().then(stupidErrorAlert)
@@ -96,30 +96,37 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
     return Grid(
         SheetHeader("Edit Artists", sheetStack),
         Box(artistList.map((list) =>
-            Table(
-                artists,
-                asRef({
-                    type: {
-                        cellRenderer: (x) => {
-                            // const data = asRef(x);
-                            // data.listen((type, oldVal) => {
-                            //     if (oldVal != undefined) {
-                            //         if (type == ArtistTypes.Primary || type == ArtistTypes.Featuring) {
-                            //             artists.updateItem(x, { type, _id: null! } as ArtistRef);
-                            //         } else {
-                            //             artists.updateItem(x, { type, name: "" } as ArtistRef);
-                            //         }
-                            //     }
-                            // });
-                            return DropDown(Object.values(ArtistTypes), asRef(ArtistTypes.Primary));
-                        },
-                    },
-                }),
+            Box(
+                Grid(
+                    Label("Type").setFontWeight("bold"),
+                    Label("Name").setFontWeight("bold"),
+                    Label("Action").setFontWeight("bold"),
+                ).setTemplateColumns("30% 60% 10%"),
+                Box(artists.map((x) =>
+                    x.map((artist) => {
+                        const type = asRef(artist.type);
+                        type.listen((val, oldVal) => {
+                            if (oldVal !== undefined) {
+                                x[x.indexOf(artist)] = val == ArtistTypes.Primary || val == ArtistTypes.Featuring ? { type: val, _id: null! } : { type: val, name: "" };
+                                console.log(x);
+                                artists.setValue(x);
+                            }
+                        });
+                        return Grid(
+                            DropDown(Object.values(ArtistTypes), type),
+                            artist.type == ArtistTypes.Primary || artist.type == ArtistTypes.Featuring ? DropDown(list.map((x) => x._id), asRef("artist._id")) : TextInput(asRef("artist.name"), "Name"),
+                            PrimaryButton("").addPrefix(MaterialIcon("delete")).onClick(() => {
+                                x.splice(x.indexOf(artist), 1);
+                                artists.setValue(x);
+                            }),
+                        ).setGap().setTemplateColumns("30% 60% 10%");
+                    })
+                )),
             )
         )),
         PrimaryButton("Add Artist")
             .setJustifySelf("end")
-            .onClick(() => artists.addItem({ type: ArtistTypes.Primary, _id: null! } as ArtistRef)),
+            .onClick(() => artists.setValue([...artists.value, { type: ArtistTypes.Primary, _id: null! }])),
         PrimaryButton("Save")
             .onClick(() => sheetStack.removeOne()),
     ).setGap();

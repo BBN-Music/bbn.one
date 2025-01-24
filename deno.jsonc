@@ -12,7 +12,7 @@
         //"zod/": "https://s.hmsys.de/hmsys@0.10.0-b32150b/",
         "zod/": "https://deno.land/x/zod@v3.24.1/",
         // "webgen/": "../WebGen/"
-        "webgen/": "https://raw.githubusercontent.com/lucsoft/WebGen/7da68db/"
+        "webgen/": "https://raw.githubusercontent.com/lucsoft/WebGen/abf173e/"
     },
     "lock": false,
     "compilerOptions": {
