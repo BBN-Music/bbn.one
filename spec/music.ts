@@ -317,7 +317,7 @@ export const transcript = z.object({
         author: z.string(),
         authorid: z.string(),
         content: z.string(),
-        timestamp: z.string(),
+        timestamp: z.number(),
         avatar: z.string(),
         attachments: z.array(z.string()).optional(),
         embeds: z.array(z.any()).optional(),
