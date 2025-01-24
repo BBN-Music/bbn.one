@@ -628,7 +628,7 @@ export enum OAuthScopes {
 export const group = z.object({
     displayName: z.string(),
     _id: z.string(), // Replace with id
-    permission: z.string(),
+    permission: z.string().array(),
 });
 
 export interface Deferred<T> {
