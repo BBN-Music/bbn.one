@@ -1,6 +1,7 @@
 import { asRef, Box, Content, createPage, createRoute, Entry, Grid, Label, Spinner } from "webgen/mod.ts";
 import { API, Artist, stupidErrorAlert } from "../../../spec/mod.ts";
 import { ArtistEntry } from "../views/list.ts";
+import { placeholder } from "shared/list.ts";
 
 const data = asRef<"loading" | Artist[]>("loading");
 
@@ -23,7 +24,7 @@ export const artistsPage = createPage(
     Content(
         Box(data.map((data) => data === "loading" ? Spinner() : [])),
         Grid(
-            source.map((items) => items.map(ArtistEntry)),
+            source.map((items) => items.length > 0 ? items.map(ArtistEntry) : placeholder("No Artists", `You don’t have any Artists yet.`)),
         ),
     ),
 );
