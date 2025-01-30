@@ -1,10 +1,9 @@
 import { fail } from "@std/assert/fail";
 import { LruCache, memoize } from "@std/cache";
-import { API, fileCache, Permission, stupidErrorAlert } from "shared/mod.ts";
 import { asRef, asRefRecord, Async, Box, Component, DropDown, Empty, Grid, Image, ImageComponent, Label, PrimaryButton, SheetHeader, Sheets, Spinner, WriteSignal } from "webgen/mod.ts";
 import { templateArtwork } from "../../assets/imports.ts";
 import { loginRequired } from "../../components/pages.ts";
-import { Drop, Song } from "../../spec/music.ts";
+import { API, APITools, Drop, Permission, Song, stupidErrorAlert } from "../../spec/mod.ts";
 
 // @deno-types="https://raw.githubusercontent.com/lucsoft-DevTeam/lucsoft.de/main/custom.d.ts"
 import spotify from "../landing/assets/spotify.svg";
@@ -64,7 +63,7 @@ export const activeUser = asRefRecord({
 });
 
 export function permCheck(...per: Permission[]) {
-    return API.isPermited(per, activeUser.permission.value);
+    return APITools.isPermitted(per, activeUser.permission.value);
 }
 
 export function updateActiveUserData() {
@@ -126,7 +125,7 @@ export const tokens = asRefRecord({
 
 export async function forceRefreshToken() {
     try {
-        const access = await API.auth.refreshAccessToken.post(localStorage["refresh-token"]).then(stupidErrorAlert);
+        const access = await API.postRefreshAccessTokenByAuth({ headers: { "Authorization": localStorage["refresh-token"] } }).then(stupidErrorAlert) as { token: string };
         localStorage["access-token"] = access.token;
         tokens.accessToken.setValue(access.token);
     } catch (_) {
@@ -188,22 +187,12 @@ export function showPreviewImage(x: Drop) {
     return x.artwork
         ? Async(
             (async () => {
-                const image = await API.music.id(x._id).artwork().then(stupidErrorAlert);
+                const image = await API.getArtworkByDropByMusic({ path: { dropId: x._id } }).then(stupidErrorAlert) as Blob;
                 return Image(URL.createObjectURL(image), "");
             })(),
             Spinner(),
         )
         : Image(templateArtwork, "A Placeholder Artwork.");
-}
-
-async function loadImage(x: Drop) {
-    const cache = await fileCache();
-    if (await cache.has(`image-preview-${x.artwork}`)) {
-        return await cache.get(`image-preview-${x.artwork}`)!;
-    }
-    const blob = await API.music.id(x._id).artwork().then(stupidErrorAlert);
-    await cache.set(`image-preview-${x.artwork}`, blob);
-    return blob;
 }
 
 export function stringToColor(str: string) {
@@ -245,9 +234,9 @@ export function getNameInital(name: string) {
 const cache = new LruCache<unknown, Promise<Blob>>(10);
 
 const getPicture = memoize(async (id: string) => {
-    const image = await API.user.picture(id);
-    if (image.status == "fulfilled") {
-        return image.value;
+    const image = await API.getPictureByUserByUser({ path: { userId: id } });
+    if (image.error === undefined) {
+        return image.data as Blob;
     }
     fail("Failed to load image");
 }, { cache });

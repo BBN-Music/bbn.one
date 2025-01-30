@@ -1,7 +1,6 @@
 import { sheetStack } from "shared/helper.ts";
-import { API, stupidErrorAlert } from "shared/mod.ts";
 import { asRef, asRefRecord, Box, DropDown, Grid, Label, MaterialIcon, PrimaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
-import { Artist, ArtistRef, ArtistTypes, Song } from "../../../spec/music.ts";
+import { API, Artist, ArtistRef, Song, stupidErrorAlert, zArtistTypes } from "../../../spec/mod.ts";
 import "./table.css";
 
 export function ManageSongs(songs: WriteSignal<Song[]>, uploadingSongs: WriteSignal<{ [uploadId: string]: number }[]>, primaryGenre: string, artistList?: Artist[]) {
@@ -74,7 +73,13 @@ export const createArtistSheet = (name?: string) => {
         TextInput(state.apple, "Apple Music URL"),
         PrimaryButton("Create")
             .onPromiseClick(async () => {
-                await API.music.artists.create(Object.fromEntries(Object.entries(state).map(([key, state]) => [key, state.value])) as any).then(stupidErrorAlert);
+                await API.postArtistsByMusic({
+                    body: {
+                        name: state.name.value!,
+                        spotify: state.spotify.value,
+                        apple: state.apple.value,
+                    },
+                });
                 sheetStack.removeOne();
                 location.reload();
             })
@@ -89,8 +94,7 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
     const artistList = provided ? asRef(provided) : asRef<Artist[]>([]);
 
     if (!provided) {
-        API.music.artists.list().then(stupidErrorAlert)
-            .then((x) => artistList.setValue(x));
+        API.getArtistsByMusic().then(stupidErrorAlert).then((x) => artistList.setValue(x));
     }
 
     return Grid(
@@ -107,14 +111,14 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
                         const type = asRef(artist.type);
                         type.listen((val, oldVal) => {
                             if (oldVal !== undefined) {
-                                x[x.indexOf(artist)] = val == ArtistTypes.Primary || val == ArtistTypes.Featuring ? { type: val, _id: null! } : { type: val, name: "" };
+                                x[x.indexOf(artist)] = val == zArtistTypes.enum.PRIMARY || val == zArtistTypes.enum.FEATURING ? { type: val, _id: null! } : { type: val, name: "" };
                                 console.log(x);
                                 artists.setValue(x);
                             }
                         });
                         return Grid(
-                            DropDown(Object.values(ArtistTypes), type),
-                            artist.type == ArtistTypes.Primary || artist.type == ArtistTypes.Featuring ? DropDown(list.map((x) => x._id), asRef("artist._id")) : TextInput(asRef("artist.name"), "Name"),
+                            DropDown(Object.values(zArtistTypes.enum), type),
+                            artist.type == zArtistTypes.enum.PRIMARY || artist.type == zArtistTypes.enum.FEATURING ? DropDown(list.map((x) => x._id), asRef("artist._id")) : TextInput(asRef("artist.name"), "Name"),
                             PrimaryButton("").addPrefix(MaterialIcon("delete")).onClick(() => {
                                 x.splice(x.indexOf(artist), 1);
                                 artists.setValue(x);
@@ -126,7 +130,7 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
         )),
         PrimaryButton("Add Artist")
             .setJustifySelf("end")
-            .onClick(() => artists.setValue([...artists.value, { type: ArtistTypes.Primary, _id: null! }])),
+            .onClick(() => artists.setValue([...artists.value, { type: zArtistTypes.enum.PRIMARY, _id: null! }])),
         PrimaryButton("Save")
             .onClick(() => sheetStack.removeOne()),
     ).setGap();

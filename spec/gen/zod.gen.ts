@@ -480,23 +480,7 @@ export const zPostArtistsByMusicResponse = z.object({
     id: zObjectId
 });
 
-export const zGetDropsByMusicResponse = z.array(z.object({
-    gtin: z.string().optional(),
-    title: z.string().optional(),
-    artists: z.array(zArtistRef).optional(),
-    release: z.string().date().optional(),
-    language: z.string().optional(),
-    primaryGenre: z.string().optional(),
-    secondaryGenre: z.string().optional(),
-    compositionCopyright: z.string().optional(),
-    soundRecordingCopyright: z.string().optional(),
-    artwork: zObjectId.optional(),
-    songs: z.array(zObjectId).optional(),
-    comments: z.string().optional(),
-    _id: zObjectId.optional(),
-    user: zObjectId.optional(),
-    type: zDropType.optional()
-}));
+export const zGetDropsByMusicResponse = z.array(z.unknown());
 
 export const zGetIdByDropsByMusicResponse = z.object({
     gtin: z.string().optional(),

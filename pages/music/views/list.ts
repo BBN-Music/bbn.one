@@ -2,7 +2,7 @@ import { showPreviewImage } from "shared/helper.ts";
 import { placeholder } from "shared/list.ts";
 import { asRef, Empty, Entry, Grid, Image, Label } from "webgen/mod.ts";
 import { templateArtwork } from "../../../assets/imports.ts";
-import { type Artist, Drop, DropType } from "../../../spec/music.ts";
+import { type Artist, Drop, DropType, zDropType } from "../../../spec/mod.ts";
 
 export function DropEntry(x: Drop) {
     return Entry(
@@ -19,7 +19,7 @@ export function DropEntry(x: Drop) {
             .setPadding("1rem 0")
             .addPrefix(showPreviewImage(x).setWidth("100px"))
             .addSuffix((() => {
-                if (x.type == DropType.UnderReview) {
+                if (x.type == zDropType.enum.UNDER_REVIEW) {
                     return Label("Under Review")
                         .setCssStyle("backgroundColor", "#BCBCBC")
                         .setCssStyle("borderRadius", "10rem")
@@ -27,7 +27,7 @@ export function DropEntry(x: Drop) {
                         .setAlignSelf("center");
                 }
 
-                if (x.type == DropType.ReviewDeclined) {
+                if (x.type == zDropType.enum.REVIEW_DECLINED) {
                     return Label("Declined")
                         .setCssStyle("backgroundColor", "#BCBCBC")
                         .setCssStyle("borderRadius", "10rem")
@@ -38,7 +38,7 @@ export function DropEntry(x: Drop) {
                 return Empty();
             })()),
     )
-        .onClick(() => location.href = x.type === DropType.Unsubmitted ? `/c/music/new-drop?id=${x._id}` : `/c/music/edit?id=${x._id}`);
+        .onClick(() => location.href = x.type === zDropType.enum.UNSUBMITTED ? `/c/music/new-drop?id=${x._id}` : `/c/music/edit?id=${x._id}`);
 }
 
 export function ArtistEntry(x: Artist) {

@@ -6,12 +6,11 @@ import "./pages/unpublishedDrops.ts";
 
 import { RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
 import { Navigation } from "shared/navigation.ts";
-import { API, stupidErrorAlert } from "shared/restSpec.ts";
 import { activeRoute, appendBody, Box, Content, createRoute, css, DialogContainer, FullWidthSection, PrimaryButton, StartRouting, WebGenTheme } from "webgen/mod.ts";
 import "../../assets/css/main.css";
 import "../../assets/css/music.css";
 import { DynaNavigation } from "../../components/nav.ts";
-import { DropType } from "../../spec/music.ts";
+import { API, stupidErrorAlert, zDropType } from "../../spec/mod.ts";
 import { artistsPage } from "./pages/artists.ts";
 import { draftsDropsPage } from "./pages/draftDrops.ts";
 import { publishedDrops } from "./pages/publishedDrops.ts";
@@ -23,8 +22,8 @@ createRoute({
     path: "/c/music",
     events: {
         onActive: async () => {
-            const list = await API.music.drops.list().then(stupidErrorAlert);
-            const published = list.filter((x) => x.type === DropType.Published);
+            const list = await API.getDropsByMusic().then(stupidErrorAlert);
+            const published = list.filter((x) => x.type === zDropType.enum.PUBLISHED);
 
             if (published.length >= 1) {
                 publishedDrops.route.navigate({});
@@ -52,7 +51,7 @@ appendBody(
                                 .onClick(() => sheetStack.addSheet(createArtistSheet()))
                             : PrimaryButton("Create new Drop")
                                 .onPromiseClick(async () => {
-                                    const { id } = await API.music.drops.create().then(stupidErrorAlert);
+                                    const { id } = await API.postMusic().then(stupidErrorAlert) as { id: string };
                                     location.href = `/c/music/new-drop?id=${id}`;
                                 })
                     ),

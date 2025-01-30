@@ -1,13 +1,11 @@
 import { allowedAudioFormats, allowedImageFormats, getSecondary, RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
-import { API, stupidErrorAlert } from "shared/mod.ts";
 import { appendBody, asRef, asRefRecord, Box, Color, Content, createFilePicker, DateInput, DialogContainer, DropDown, Empty, FullWidthSection, Grid, Image, Label, PrimaryButton, SecondaryButton, SheetHeader, Spinner, TextAreaInput, TextInput, WebGenTheme } from "webgen/mod.ts";
-import { ZodError } from "zod/mod.ts";
 import "../../assets/css/main.css";
 import { templateArtwork } from "../../assets/imports.ts";
 import { DynaNavigation } from "../../components/nav.ts";
 import genres from "../../data/genres.json" with { type: "json" };
 import language from "../../data/language.json" with { type: "json" };
-import { ArtistRef, ArtistTypes, DropType, Song } from "../../spec/music.ts";
+import { API, ArtistRef, Song, stupidErrorAlert, zArtistTypes, zDropType } from "../../spec/mod.ts";
 import { uploadArtwork, uploadSongToDrop } from "./data.ts";
 import "./newDrop.css";
 import { EditArtistsDialog, ManageSongs } from "./views/table.ts";
@@ -40,14 +38,13 @@ export const creationState = asRefRecord({
     page: 0,
     validationState: <ZodError | undefined> undefined,
 });
-
-API.music.id(dropId).get().then(stupidErrorAlert)
+API.getIdByDropsByMusic({ path: { id: dropId } }).then(stupidErrorAlert)
     .then((drop) => {
         creationState.gtin.setValue(drop.gtin);
         creationState.title.setValue(drop.title);
         creationState.release.setValue(drop.release);
         creationState.language.setValue(drop.language);
-        creationState.artists.setValue(drop.artists ?? [{ type: ArtistTypes.Primary, _id: null! }]);
+        creationState.artists.setValue(drop.artists ?? [{ type: zArtistTypes.enum.PRIMARY, _id: null! }]);
         creationState.primaryGenre.setValue(drop.primaryGenre);
         creationState.secondaryGenre.setValue(drop.secondaryGenre);
         creationState.compositionCopyright.setValue(drop.compositionCopyright ?? "BBN Music (via bbn.one)");

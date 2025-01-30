@@ -1,8 +1,7 @@
 import { RegisterAuthRefresh, renewAccessTokenIfNeeded, sheetStack } from "shared/helper.ts";
-import { API, stupidErrorAlert } from "shared/mod.ts";
 import { appendBody, asRef, Box, Color, Content, DialogContainer, FullWidthSection, Grid, Label, PrimaryButton, Spinner, Table, WebGenTheme } from "webgen/mod.ts";
 import { DynaNavigation } from "../../components/nav.ts";
-import { AccountType, Wallet } from "../../spec/music.ts";
+import { API, stupidErrorAlert, Wallet, zAccountType } from "../../spec/mod.ts";
 
 await RegisterAuthRefresh();
 
@@ -37,7 +36,7 @@ appendBody(
                                 .setPadding("1rem")
                                 .setCssStyle("borderRadius", "var(--wg-radius-mid)"),
                             Grid(
-                                Label(wallet.accountType == AccountType.Default ? "Basic" : AccountType.Subscribed ? "Premium" : "VIP")
+                                Label(wallet.accountType == zAccountType.enum.DEFAULT ? "Basic" : zAccountType.enum.SUBSCRIBED ? "Premium" : "VIP")
                                     .setTextSize("4xl")
                                     .setFontWeight("bold"),
                                 Label("Your Subscription")
@@ -97,4 +96,4 @@ appendBody(
 );
 
 renewAccessTokenIfNeeded()
-    .then(async () => wallet.setValue(await API.wallet.get().then(stupidErrorAlert)));
+    .then(async () => wallet.setValue(await API.getWallet().then(stupidErrorAlert)));

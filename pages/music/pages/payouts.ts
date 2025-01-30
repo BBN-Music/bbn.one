@@ -1,8 +1,7 @@
-import { API, stupidErrorAlert } from "shared/mod.ts";
 import { asRef, Box, Content, createPage, createRoute, Entry, Grid, Label, Spinner } from "webgen/mod.ts";
-import { Payout } from "../../../spec/music.ts";
+import { API, Payout, PayoutResponse, stupidErrorAlert } from "../../../spec/mod.ts";
 
-const data = asRef<"loading" | Payout[]>("loading");
+const data = asRef<"loading" | PayoutResponse[]>("loading");
 
 const source = data.map((data) => data === "loading" ? [] : data);
 
@@ -14,7 +13,7 @@ export const payoutsPage = createPage(
             path: "/c/music?list=payouts",
             events: {
                 onLazyInit: async () => {
-                    const list = await API.payment.payouts.get().then(stupidErrorAlert);
+                    const list = await API.getPayoutsByPayment().then(stupidErrorAlert);
                     data.value = list;
                 },
             },

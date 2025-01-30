@@ -1,6 +1,5 @@
-import { API, stupidErrorAlert } from "shared/restSpec.ts";
 import { asRef, Box, Content, createPage, createRoute, Entry, Grid, Label, Spinner } from "webgen/mod.ts";
-import { Artist } from "../../../spec/music.ts";
+import { API, Artist, stupidErrorAlert } from "../../../spec/mod.ts";
 import { ArtistEntry } from "../views/list.ts";
 
 const data = asRef<"loading" | Artist[]>("loading");
@@ -15,7 +14,7 @@ export const artistsPage = createPage(
             path: "/c/music?list=artists",
             events: {
                 onLazyInit: async () => {
-                    const list = await API.music.artists.list().then(stupidErrorAlert);
+                    const list = await API.getArtistsByMusic().then(stupidErrorAlert);
                     data.value = list;
                 },
             },
@@ -24,9 +23,7 @@ export const artistsPage = createPage(
     Content(
         Box(data.map((data) => data === "loading" ? Spinner() : [])),
         Grid(
-            source.map((items) =>
-                items.map(ArtistEntry)
-            ),
+            source.map((items) => items.map(ArtistEntry)),
         ),
     ),
 );

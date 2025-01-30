@@ -22,7 +22,7 @@ export const APITools = {
     oauthRedirect: (type: "discord" | "google" | "microsoft") => `${APITools.baseUrl()}auth/redirect/${type}?goal=${localStorage.getItem("goal") ?? "/c/music"}`,
     token: () => localStorage.getItem("access-token"),
     baseUrl: () => localStorage.getItem("OVERRIDE_BASE_URL") || (location.hostname === "localhost" ? "http://localhost:8443/" : "https://bbn.one/"),
-    isPermited: (requiredPermissions: Permission[], userPermission: Permission[]) => requiredPermissions.every((required) => userPermission.find((user) => required.startsWith(user))),
+    isPermitted: (requiredPermissions: Permission[], userPermission: Permission[]) => requiredPermissions.every((required) => userPermission.find((user) => required.startsWith(user))),
 };
 
 client.setConfig({

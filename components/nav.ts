@@ -1,9 +1,9 @@
 import { delay } from "@std/async";
 import { activeUser, IsLoggedIn, permCheck, showProfilePicture } from "shared/helper.ts";
-import { API } from "shared/mod.ts";
 import "webgen/assets/font/font.css";
 import { Box, Color, Component, Content, css, Empty, Grid, Image, Label, MaterialIcon, mediaQueryRef, Popover, PrimaryButton } from "webgen/mod.ts";
 import { activeTitle, NavigationType, pages } from "./pages.ts";
+import { API } from "../spec/mod.ts";
 
 const isLightMode = mediaQueryRef("(prefers-color-scheme: light)");
 
@@ -126,7 +126,7 @@ export function EmailVerificationBanner() {
             .setFontWeight("bold"),
         PrimaryButton("Resend Verify Email")
             .onPromiseClick(async () => {
-                await API.user.mail.resendVerifyEmail.post();
+                await API.postResendVerifyEmailByMailByUser();
                 await delay(1000);
             })
             .setRadius("large")

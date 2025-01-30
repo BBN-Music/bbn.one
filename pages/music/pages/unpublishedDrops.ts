@@ -1,6 +1,5 @@
-import { API, stupidErrorAlert } from "shared/mod.ts";
 import { asRef, Box, Content, createPage, createRoute, Grid, Spinner } from "webgen/mod.ts";
-import { Drop, DropType } from "../../../spec/music.ts";
+import { API, Drop, stupidErrorAlert, zDropType } from "../../../spec/mod.ts";
 import { musicList } from "../views/list.ts";
 
 const data = asRef<"loading" | Drop[]>("loading");
@@ -15,11 +14,11 @@ export const unpublishedDropsPage = createPage(
             path: "/c/music?list=unpublished",
             events: {
                 onLazyInit: async () => {
-                    const list = await API.music.drops.list().then(stupidErrorAlert);
+                    const list = await API.getDropsByMusic().then(stupidErrorAlert);
                     data.value = list.filter((x) =>
-                        x.type === DropType.UnderReview ||
-                        x.type === DropType.Private ||
-                        x.type === DropType.ReviewDeclined
+                        x.type === zDropType.enum.UNDER_REVIEW ||
+                        x.type === zDropType.enum.PRIVATE ||
+                        x.type === zDropType.enum.REVIEW_DECLINED
                     );
                 },
             },
@@ -28,7 +27,7 @@ export const unpublishedDropsPage = createPage(
     Content(
         Box(data.map((data) => data === "loading" ? Spinner() : [])),
         Grid(
-            source.map((items) => musicList(items, DropType.Private)),
+            source.map((items) => musicList(items, zDropType.enum.PRIVATE)),
         ),
     ),
 );

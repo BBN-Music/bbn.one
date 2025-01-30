@@ -1,6 +1,5 @@
-import { API, stupidErrorAlert } from "shared/restSpec.ts";
 import { asRef, Box, Content, createPage, createRoute, Grid, Spinner } from "webgen/mod.ts";
-import { Drop, DropType } from "../../../spec/music.ts";
+import { API, Drop, stupidErrorAlert, zDropType } from "../../../spec/mod.ts";
 import { musicList } from "../views/list.ts";
 
 const data = asRef<"loading" | Drop[]>("loading");
@@ -15,8 +14,8 @@ export const draftsDropsPage = createPage(
             path: "/c/music?list=drafts",
             events: {
                 onLazyInit: async () => {
-                    const list = await API.music.drops.list().then(stupidErrorAlert);
-                    data.value = list.filter((x) => x.type === DropType.Unsubmitted);
+                    const list = await API.getDropsByMusic().then(stupidErrorAlert);
+                    data.value = list.filter((x) => x.type === zDropType.enum.UNSUBMITTED);
                 },
             },
         }),
@@ -24,7 +23,7 @@ export const draftsDropsPage = createPage(
     Content(
         Box(data.map((data) => data === "loading" ? Spinner() : [])),
         Grid(
-            source.map((items) => musicList(items, DropType.Unsubmitted)),
+            source.map((items) => musicList(items, zDropType.enum.UNSUBMITTED)),
         ),
     ),
 );

@@ -363,10 +363,10 @@ export type GetDropsByAdminResponse = GetDropsByAdminResponses[keyof GetDropsByA
 export type GetIdByDropsByAdminData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/admin/drops/:id';
+    url: '/api/@bbn/admin/drops/{id}';
 };
 
 export type GetIdByDropsByAdminResponses = {
@@ -398,18 +398,20 @@ export type GetIdByDropsByAdminResponse = GetIdByDropsByAdminResponses[keyof Get
 
 export type GetDownloadByFileByFilesByAdminData = {
     body?: never;
-    path?: never;
+    path: {
+        fileId: string;
+    };
     query?: never;
-    url: '/api/@bbn/admin/files/:fileId/download';
+    url: '/api/@bbn/admin/files/{fileId}/download';
 };
 
 export type DeleteIdByFilesByAdminData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/admin/files/:id';
+    url: '/api/@bbn/admin/files/{id}';
 };
 
 export type GetGroupsByAdminData = {
@@ -453,9 +455,11 @@ export type GetUploadByPayoutsByAdminData = {
 
 export type GetQueryBySearchByAdminData = {
     body?: never;
-    path?: never;
+    path: {
+        query: string;
+    };
     query?: never;
-    url: '/api/@bbn/admin/search/:query';
+    url: '/api/@bbn/admin/search/{query}';
 };
 
 export type GetQueryBySearchByAdminResponses = {
@@ -512,27 +516,33 @@ export type GetTokenByFromUserInteractionByAuthData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        token: string;
+    };
     query?: never;
-    url: '/api/@bbn/auth/from-user-interaction/:token';
+    url: '/api/@bbn/auth/from-user-interaction/{token}';
 };
 
 export type PostProviderByOauthByAuthData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        provider: string;
+    };
     query?: never;
-    url: '/api/@bbn/auth/oauth/:Provider';
+    url: '/api/@bbn/auth/oauth/{provider}';
 };
 
 export type GetProviderByRedirectByAuthData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        provider: string;
+    };
     query?: never;
-    url: '/api/@bbn/auth/redirect/:provider';
+    url: '/api/@bbn/auth/redirect/{provider}';
 };
 
 export type PostRefreshAccessTokenByAuthData = {
@@ -610,36 +620,45 @@ export type GetArtworkByDropByMusicData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        dropId: string;
+    };
     query?: never;
-    url: '/api/@bbn/music/:dropId/artwork';
+    url: '/api/@bbn/music/{dropId}/artwork';
 };
 
 export type PostReviewByDropByMusicData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        dropId: string;
+    };
     query?: never;
-    url: '/api/@bbn/music/:dropId/review';
+    url: '/api/@bbn/music/{dropId}/review';
+};
+
+export type GetServicesByDropByMusicData = {
+    body?: {
+        [key: string]: unknown;
+    };
+    path: {
+        dropId: string;
+    };
+    query?: never;
+    url: '/api/@bbn/music/{dropId}/services';
 };
 
 export type PostTypeByTypeByDropByMusicData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
-    query?: never;
-    url: '/api/@bbn/music/:dropId/type/:type';
-};
-
-export type GetServicesByDropidByMusicData = {
-    body?: {
-        [key: string]: unknown;
+    path: {
+        dropId: string;
+        type: string;
     };
-    path?: never;
     query?: never;
-    url: '/api/@bbn/music/:dropid/services';
+    url: '/api/@bbn/music/{dropId}/type/{type}';
 };
 
 export type GetArtistsByMusicData = {
@@ -707,6 +726,8 @@ export type GetDropsByMusicResponses = {
         _id?: ObjectId;
         user?: ObjectId;
         type?: DropType;
+    } & {
+        gtin?: string | null;
     }>;
 };
 
@@ -714,25 +735,29 @@ export type GetDropsByMusicResponse = GetDropsByMusicResponses[keyof GetDropsByM
 
 export type GetDownloadByDropByDropsByMusicData = {
     body?: never;
-    path?: never;
+    path: {
+        dropId: string;
+    };
     query?: never;
-    url: '/api/@bbn/music/drops/:dropId/download';
+    url: '/api/@bbn/music/drops/{dropId}/download';
 };
 
 export type GetUploadByDropByDropsByMusicData = {
     body?: never;
-    path?: never;
+    path: {
+        dropId: string;
+    };
     query?: never;
-    url: '/api/@bbn/music/drops/:dropId/upload';
+    url: '/api/@bbn/music/drops/{dropId}/upload';
 };
 
 export type GetIdByDropsByMusicData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/music/drops/:id';
+    url: '/api/@bbn/music/drops/{id}';
 };
 
 export type GetIdByDropsByMusicResponses = {
@@ -779,10 +804,10 @@ export type PatchIdByDropsByMusicData = {
         type?: DropType;
     };
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/music/drops/:id';
+    url: '/api/@bbn/music/drops/{id}';
 };
 
 export type PostShareByDropsByMusicData = {
@@ -808,19 +833,19 @@ export type PostShareByDropsByMusicResponse = PostShareByDropsByMusicResponses[k
 export type DeleteIdByShareByDropsByMusicData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/music/drops/share/:id';
+    url: '/api/@bbn/music/drops/share/{id}';
 };
 
 export type GetIdByShareByDropsByMusicData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/music/drops/share/:id';
+    url: '/api/@bbn/music/drops/share/{id}';
 };
 
 export type GetIdByShareByDropsByMusicResponses = {
@@ -852,18 +877,22 @@ export type GetSlugByShareByMusicData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        slug: string;
+    };
     query?: never;
-    url: '/api/@bbn/music/share/:slug';
+    url: '/api/@bbn/music/share/{slug}';
 };
 
 export type GetArtworkBySlugByShareByMusicData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        slug: string;
+    };
     query?: never;
-    url: '/api/@bbn/music/share/:slug/artwork';
+    url: '/api/@bbn/music/share/{slug}/artwork';
 };
 
 export type GetSongsByMusicData = {
@@ -955,18 +984,20 @@ export type PostApplicationsByOauthResponses = {
 
 export type GetDownloadByClientByApplicationsByOauthData = {
     body?: never;
-    path?: never;
+    path: {
+        clientId: string;
+    };
     query?: never;
-    url: '/api/@bbn/oauth/applications/:clientId/download';
+    url: '/api/@bbn/oauth/applications/{clientId}/download';
 };
 
 export type DeleteIdByApplicationsByOauthData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/oauth/applications/:id';
+    url: '/api/@bbn/oauth/applications/{id}';
 };
 
 export type GetUploadByApplicationsByOauthData = {
@@ -1043,10 +1074,10 @@ export type GetPayoutsByPaymentResponse = GetPayoutsByPaymentResponses[keyof Get
 export type GetIdByPayoutsByPaymentData = {
     body?: never;
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/payment/payouts/:id';
+    url: '/api/@bbn/payment/payouts/{id}';
 };
 
 export type GetIdByPayoutsByPaymentResponses = {
@@ -1091,9 +1122,11 @@ export type GetPictureByUserByUserData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        userId: string;
+    };
     query?: never;
-    url: '/api/@bbn/user/:userId/picture';
+    url: '/api/@bbn/user/{userId}/picture';
 };
 
 export type PostResendVerifyEmailByMailByUserData = {
@@ -1109,9 +1142,11 @@ export type PostTokenByValidateByMailByUserData = {
     body?: {
         [key: string]: unknown;
     };
-    path?: never;
+    path: {
+        token: string;
+    };
     query?: never;
-    url: '/api/@bbn/user/mail/validate/:token';
+    url: '/api/@bbn/user/mail/validate/{token}';
 };
 
 export type GetUploadByAvatarBySetMeByUserData = {
@@ -1152,10 +1187,10 @@ export type PatchIdByUsersByUserData = {
         groups: Array<string>;
     };
     path: {
-        id: unknown;
+        id: string;
     };
     query?: never;
-    url: '/api/@bbn/user/users/:id';
+    url: '/api/@bbn/user/users/{id}';
 };
 
 export type GetWalletData = {
