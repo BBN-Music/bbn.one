@@ -1,4 +1,4 @@
-import { allowedAudioFormats, allowedImageFormats, getSecondary, RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
+import { allowedAudioFormats, getSecondary, RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
 import { appendBody, asRef, asRefRecord, Async, Box, Color, Content, createFilePicker, DateInput, DialogContainer, DropDown, Empty, FullWidthSection, Grid, Image, Label, PrimaryButton, SecondaryButton, SheetHeader, Spinner, TextAreaInput, TextInput, WebGenTheme } from "webgen/mod.ts";
 import { z } from "zod/mod.ts";
 import "../../assets/css/main.css";
@@ -7,7 +7,7 @@ import { DynaNavigation } from "../../components/nav.ts";
 import genres from "../../data/genres.json" with { type: "json" };
 import language from "../../data/language.json" with { type: "json" };
 import { API, ArtistRef, Song, stupidErrorAlert, zArtistTypes } from "../../spec/mod.ts";
-import { uploadArtwork, uploadSongToDrop } from "./data.ts";
+import { uploadSongToDrop } from "./data.ts";
 import "./newDrop.css";
 import { EditArtistsDialog, ManageSongs } from "./views/table.ts";
 
@@ -69,7 +69,8 @@ const validator = (page: number) => async () => {
 
     // const data = validate();
     // if (error.getValue()) return creationState.validationState = error.getValue();
-    // if (data) await API.music.id(dropId).update(data);
+    //TODO: Validate
+    await API.patchIdByDropsByMusic({ path: { id: dropId }, body: Object.fromEntries(Object.entries(creationState).map(([key, state]) => [key, state.value])) });
     creationState.page.setValue(page + 1);
     creationState.validationState.setValue(undefined);
 };
@@ -77,16 +78,17 @@ const validator = (page: number) => async () => {
 const footer = (page: number) =>
     Grid(
         page == 0 ? SecondaryButton("Cancel").setJustifyContent("center").onClick(() => location.href = "/c/music") : SecondaryButton("Back").setJustifyContent("center").onClick(() => creationState.page.setValue(page - 1)),
-        Box(
-            creationState.validationState.map((error) =>
-                error
-                    ? CenterV(
-                        Label(getErrorMessage(error))
-                            .setMargin("0 0.5rem 0 0"),
-                    )
-                    : Empty()
-            ),
-        ),
+        Empty(),
+        // Box(
+        //     creationState.validationState.map((error) =>
+        //         error
+        //             ? CenterV(
+        //                 Label(getErrorMessage(error))
+        //                     .setMargin("0 0.5rem 0 0"),
+        //             )
+        //             : Empty()
+        //     ),
+        // ),
         PrimaryButton("Next").setJustifyContent("center").onClick(validator(page)),
     )
         .setGap()
@@ -133,20 +135,21 @@ const wizard = creationState.page.map((page) => {
     } else if (page == 2) {
         return Grid(
             creationState.artwork.map((data) => {
-                const blob = asRef<Blob | number | undefined>(undefined);
+                const blob = asRef<string | number | undefined>(undefined);
                 return Grid(
                     Grid(
                         Label("Upload your Cover").setFontWeight("bold").setTextSize("xl").setJustifySelf("center"),
-                        PrimaryButton("Manual Upload")
-                            .onClick(() => createFilePicker(allowedImageFormats.join(",")).then((file) => uploadArtwork(dropId, file, creationState.artwork, isUploading))),
+                        PrimaryButton("Manual Upload"),
+                        // .onClick(() => createFilePicker(allowedImageFormats.join(",")).then((file) => uploadArtwork(dropId, file, creationState.artwork, isUploading))),
                     ).setTemplateColumns("1fr auto"),
                     data
                         ? Box(blob.map((x) =>
                             Async(
                                 (async () => {
+                                    console.log(dropId);
                                     const image = await API.getArtworkByDropByMusic({ path: { dropId } });
-                                    blob.setValue(image.data);
-                                    return Image(URL.createObjectURL(x), "Drop Artwork").setMaxHeight("60%").setCssStyle("aspectRatio", "1 / 1");
+                                    blob.setValue(URL.createObjectURL(image.data));
+                                    return Image(blob, "Drop Artwork").setMaxHeight("60%").setCssStyle("aspectRatio", "1 / 1");
                                 })(),
                                 Spinner(),
                             )
