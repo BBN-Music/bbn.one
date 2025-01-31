@@ -1,6 +1,6 @@
 import { delay } from "@std/async";
+import { StreamingUploadHandler } from "shared/mod.ts";
 import { Reference, WriteSignal } from "webgen/mod.ts";
-import { templateArtwork } from "../../assets/imports.ts";
 import { API, APITools, ArtistRef, Song, stupidErrorAlert } from "../../spec/mod.ts";
 
 export function uploadSongToDrop(songs: Reference<Song[]>, artists: ArtistRef[], language: string, primaryGenre: string, secondaryGenre: string, uploadingSongs: Reference<{ [key: string]: number }[]>, file: File) {
@@ -65,26 +65,27 @@ export function uploadSongToDrop(songs: Reference<Song[]>, artists: ArtistRef[],
     }, file);
 }
 
-export function uploadArtwork(id: string, file: File, artworkClientData: WriteSignal<Blob | undefined>, artwork: WriteSignal<string | undefined>) {
+export function uploadArtwork(id: string, file: File, artwork: WriteSignal<string | undefined>, isUploading: WriteSignal<boolean>) {
     const blobUrl = URL.createObjectURL(file);
-    artworkClientData.setValue(templateArtwork);
+    isUploading.setValue(true);
 
     setTimeout(() => {
         StreamingUploadHandler(`music/drops/${id}/upload`, {
             failure: () => {
-                artworkClientData.setValue(undefined);
+                isUploading.setValue(false);
                 alert("Your Upload has failed. Please try a different file or try again later");
             },
             uploadDone: () => {
-                artworkClientData.setValue(templateArtwork);
+                // artworkClientData.setValue(templateArtwork);
             },
             credentials: () => APITools.token(),
             backendResponse: (id) => {
-                artworkClientData.setValue(file);
+                // artworkClientData.setValue(file);
+                isUploading.setValue(false);
                 artwork.setValue(id);
             },
             onUploadTick: async (percentage) => {
-                artworkClientData.setValue(templateArtwork);
+                // artworkClientData.setValue(templateArtwork);
                 await delay(2);
             },
         }, file);

@@ -1,4 +1,4 @@
-import { extendZodWithOpenApi } from "https://esm.sh/zod-openapi@4.0.0";
+import { extendZodWithOpenApi } from "https://esm.sh/zod-openapi@4.2.3";
 import { z } from "https://esm.sh/zod@3.24.1";
 extendZodWithOpenApi(z);
 

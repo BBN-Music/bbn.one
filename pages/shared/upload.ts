@@ -1,5 +1,5 @@
-import { API } from "shared/mod.ts";
 import { asRef, Reference } from "webgen/mod.ts";
+import { APITools } from "../../spec/mod.ts";
 
 export type StreamingUploadEvents = {
     credentials: () => string;
@@ -23,7 +23,7 @@ export function ProgressTracker(percentage: Reference<number>, expectedSize: num
 
 export function StreamingUploadHandler(path: string, events: StreamingUploadEvents, file: File) {
     try {
-        const ws = new WebSocket(`${API.BASE_URL.replace("https", "wss").replace("http", "ws")}${path}`);
+        const ws = new WebSocket(`${(APITools.baseUrl() + "api/@bbn/").replace("https", "wss").replace("http", "ws")}${path}`);
         const progress = asRef(0);
         progress.listen((percentage) => {
             events.onUploadTick(percentage);

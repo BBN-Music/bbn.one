@@ -14,7 +14,7 @@
         // "zod/": "https://deno.land/x/zod@v3.24.1/",
         "zod/": "./spec/zod/",
         // "webgen/": "../WebGen/"
-        "webgen/": "https://raw.githubusercontent.com/lucsoft/WebGen/abf173e/"
+        "webgen/": "https://raw.githubusercontent.com/lucsoft/WebGen/2c702ca/"
     },
     "lock": false,
     "compilerOptions": {

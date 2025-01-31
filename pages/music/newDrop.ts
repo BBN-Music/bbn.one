@@ -1,11 +1,12 @@
 import { allowedAudioFormats, allowedImageFormats, getSecondary, RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
-import { appendBody, asRef, asRefRecord, Box, Color, Content, createFilePicker, DateInput, DialogContainer, DropDown, Empty, FullWidthSection, Grid, Image, Label, PrimaryButton, SecondaryButton, SheetHeader, Spinner, TextAreaInput, TextInput, WebGenTheme } from "webgen/mod.ts";
+import { appendBody, asRef, asRefRecord, Async, Box, Color, Content, createFilePicker, DateInput, DialogContainer, DropDown, Empty, FullWidthSection, Grid, Image, Label, PrimaryButton, SecondaryButton, SheetHeader, Spinner, TextAreaInput, TextInput, WebGenTheme } from "webgen/mod.ts";
+import { z } from "zod/mod.ts";
 import "../../assets/css/main.css";
 import { templateArtwork } from "../../assets/imports.ts";
 import { DynaNavigation } from "../../components/nav.ts";
 import genres from "../../data/genres.json" with { type: "json" };
 import language from "../../data/language.json" with { type: "json" };
-import { API, ArtistRef, Song, stupidErrorAlert, zArtistTypes, zDropType } from "../../spec/mod.ts";
+import { API, ArtistRef, Song, stupidErrorAlert, zArtistTypes } from "../../spec/mod.ts";
 import { uploadArtwork, uploadSongToDrop } from "./data.ts";
 import "./newDrop.css";
 import { EditArtistsDialog, ManageSongs } from "./views/table.ts";
@@ -36,7 +37,7 @@ export const creationState = asRefRecord({
     songs: <Song[]> [],
     comments: <string | undefined> undefined,
     page: 0,
-    validationState: <ZodError | undefined> undefined,
+    validationState: <z.ZodError | undefined> undefined,
 });
 API.getIdByDropsByMusic({ path: { id: dropId } }).then(stupidErrorAlert)
     .then((drop) => {
@@ -131,16 +132,28 @@ const wizard = creationState.page.map((page) => {
         ).setGap();
     } else if (page == 2) {
         return Grid(
-            creationState.artworkClientData.map((data) =>
-                Grid(
+            creationState.artwork.map((data) => {
+                const blob = asRef<Blob | number | undefined>(undefined);
+                return Grid(
                     Grid(
                         Label("Upload your Cover").setFontWeight("bold").setTextSize("xl").setJustifySelf("center"),
                         PrimaryButton("Manual Upload")
-                            .onClick(() => createFilePicker(allowedImageFormats.join(",")).then((file) => uploadArtwork(dropId, file, creationState.artworkClientData, creationState.artwork))),
+                            .onClick(() => createFilePicker(allowedImageFormats.join(",")).then((file) => uploadArtwork(dropId, file, creationState.artwork, isUploading))),
                     ).setTemplateColumns("1fr auto"),
-                    Image(data ? URL.createObjectURL(data) : templateArtwork, "A Music Album Artwork.").setMaxHeight("60%").setCssStyle("aspectRatio", "1 / 1"),
-                ).setGap()
-            ),
+                    data
+                        ? Box(blob.map((x) =>
+                            Async(
+                                (async () => {
+                                    const image = await API.getArtworkByDropByMusic({ path: { dropId } });
+                                    blob.setValue(image.data);
+                                    return Image(URL.createObjectURL(x), "Drop Artwork").setMaxHeight("60%").setCssStyle("aspectRatio", "1 / 1");
+                                })(),
+                                Spinner(),
+                            )
+                        ))
+                        : Image(templateArtwork, "A Music Album Artwork."),
+                ).setGap();
+            }),
             footer(page),
         ).setGap();
     } else if (page == 3) {
@@ -201,7 +214,6 @@ appendBody(
                 DynaNavigation("Music"),
             ),
             Box(wizard),
-        )
-            .setContentMaxWidth("50%"),
+        ),
     ).setPrimaryColor(new Color("white")),
 );
