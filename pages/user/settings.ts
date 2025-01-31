@@ -10,8 +10,8 @@ await RegisterAuthRefresh();
 const state = asRefRecord({
     email: activeUser.email.value ?? "",
     name: activeUser.username.value,
-    password: "",
-    verifyNewPassword: "",
+    password: undefined,
+    verifyNewPassword: undefined,
     validationState: <string | undefined> undefined,
 });
 
@@ -33,8 +33,8 @@ appendBody(WebGenTheme(
                 const validator = z.object({
                     name: z.string().min(2),
                     email: z.string().email(),
-                    password: z.string().min(8).or(z.literal("")),
-                    verifyNewPassword: z.string().min(8).refine((val) => state.password ? val == state.password.value : true, { message: "Your new password didn't match" }).or(z.literal("")),
+                    password: z.string().min(8).optional(),
+                    verifyNewPassword: z.string().min(8).refine((val) => state.password ? val == state.password.value : true, { message: "Your new password didn't match" }).optional(),
                 }).safeParse(Object.fromEntries(Object.entries(state).map(([key, state]) => [key, state.value])));
 
                 if (validator.success) {
