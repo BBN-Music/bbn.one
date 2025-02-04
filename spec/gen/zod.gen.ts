@@ -182,24 +182,21 @@ export const zSearchReturn = z.object({
     z.object({
         _index: z.literal('drops'),
         _source: z.object({
-            gtin: z.union([
-                z.string(),
-                z.null()
-            ]).optional(),
-            title: z.string(),
-            artists: z.array(zArtistRef),
-            release: z.string().date(),
-            language: z.string(),
-            primaryGenre: z.string(),
-            secondaryGenre: z.string(),
-            compositionCopyright: z.string(),
-            soundRecordingCopyright: z.string(),
+            gtin: z.string().optional(),
+            title: z.string().optional(),
+            artists: z.array(zArtistRef).optional(),
+            release: z.string().date().optional(),
+            language: z.string().optional(),
+            primaryGenre: z.string().optional(),
+            secondaryGenre: z.string().optional(),
+            compositionCopyright: z.string().optional(),
+            soundRecordingCopyright: z.string().optional(),
             artwork: zObjectId.optional(),
-            songs: z.array(zObjectId),
+            songs: z.array(zObjectId).optional(),
             comments: z.string().optional(),
-            _id: zObjectId,
-            user: zObjectId,
-            type: zDropType
+            _id: zObjectId.optional(),
+            user: zObjectId.optional(),
+            type: zDropType.optional()
         })
     }),
     z.object({
@@ -221,7 +218,21 @@ export const zSearchReturn = z.object({
     }),
     z.object({
         _index: z.literal('songs'),
-        _source: zSong
+        _source: z.object({
+            _id: zObjectId.optional(),
+            user: zObjectId.optional(),
+            isrc: z.string().optional(),
+            title: z.string().optional(),
+            artists: z.array(zArtistRef).optional(),
+            primaryGenre: z.string().optional(),
+            secondaryGenre: z.string().optional(),
+            year: z.number().optional(),
+            country: z.string().optional(),
+            language: z.string().optional(),
+            explicit: z.boolean().optional(),
+            instrumental: z.boolean().optional(),
+            file: zObjectId.optional()
+        })
     }),
     z.object({
         _index: z.literal('transcripts'),
@@ -390,6 +401,35 @@ export const zFullDrop = z.object({
     type: zDropType
 });
 
+export const zUpdateDrop = z.object({
+    gtin: z.string().optional(),
+    title: z.string().optional(),
+    artists: z.array(zArtistRef).optional(),
+    release: z.string().date().optional(),
+    language: z.string().optional(),
+    primaryGenre: z.string().optional(),
+    secondaryGenre: z.string().optional(),
+    compositionCopyright: z.string().optional(),
+    soundRecordingCopyright: z.string().optional(),
+    artwork: z.string().optional(),
+    songs: z.array(z.object({
+        _id: zObjectId,
+        isrc: z.string().optional(),
+        title: z.string(),
+        artists: z.array(zArtistRef),
+        primaryGenre: z.string(),
+        secondaryGenre: z.string(),
+        year: z.number(),
+        country: z.string().optional(),
+        language: z.string(),
+        explicit: z.boolean(),
+        instrumental: z.boolean()
+    })).optional(),
+    comments: z.string().optional(),
+    _id: zObjectId.optional(),
+    type: zDropType.optional()
+});
+
 export const zShare = z.object({
     _id: zObjectId,
     drop: zObjectId,
@@ -480,7 +520,23 @@ export const zPostArtistsByMusicResponse = z.object({
     id: zObjectId
 });
 
-export const zGetDropsByMusicResponse = z.array(z.unknown());
+export const zGetDropsByMusicResponse = z.array(z.object({
+    gtin: z.string().optional(),
+    title: z.string().optional(),
+    artists: z.array(zArtistRef).optional(),
+    release: z.string().date().optional(),
+    language: z.string().optional(),
+    primaryGenre: z.string().optional(),
+    secondaryGenre: z.string().optional(),
+    compositionCopyright: z.string().optional(),
+    soundRecordingCopyright: z.string().optional(),
+    artwork: zObjectId.optional(),
+    songs: z.array(zObjectId).optional(),
+    comments: z.string().optional(),
+    _id: zObjectId.optional(),
+    user: zObjectId.optional(),
+    type: zDropType.optional()
+}));
 
 export const zGetIdByDropsByMusicResponse = z.object({
     gtin: z.string().optional(),

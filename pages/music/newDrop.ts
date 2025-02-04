@@ -1,5 +1,5 @@
-import { allowedAudioFormats, getSecondary, RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
-import { appendBody, asRef, asRefRecord, Async, Box, Color, Content, createFilePicker, DateInput, DialogContainer, DropDown, Empty, FullWidthSection, Grid, Image, Label, PrimaryButton, SecondaryButton, SheetHeader, Spinner, TextAreaInput, TextInput, WebGenTheme } from "webgen/mod.ts";
+import { allowedAudioFormats, allowedImageFormats, getSecondary, RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
+import { appendBody, asRef, asRefRecord, Box, Color, Content, createFilePicker, DateInput, DialogContainer, DropDown, Empty, FullWidthSection, Grid, Image, Label, PrimaryButton, SecondaryButton, SheetHeader, Spinner, TextAreaInput, TextInput, WebGenTheme } from "webgen/mod.ts";
 import { z } from "zod/mod.ts";
 import "../../assets/css/main.css";
 import { templateArtwork } from "../../assets/imports.ts";
@@ -7,7 +7,7 @@ import { DynaNavigation } from "../../components/nav.ts";
 import genres from "../../data/genres.json" with { type: "json" };
 import language from "../../data/language.json" with { type: "json" };
 import { API, ArtistRef, Song, stupidErrorAlert, zArtistTypes } from "../../spec/mod.ts";
-import { uploadSongToDrop } from "./data.ts";
+import { uploadArtwork, uploadSongToDrop } from "./data.ts";
 import "./newDrop.css";
 import { EditArtistsDialog, ManageSongs } from "./views/table.ts";
 
@@ -33,6 +33,7 @@ export const creationState = asRefRecord({
     compositionCopyright: <string | undefined> undefined,
     soundRecordingCopyright: <string | undefined> undefined,
     artwork: <string | undefined> undefined,
+    artworkData: <string | undefined> undefined,
     uploadingSongs: <Record<string, number>[]> [],
     songs: <Song[]> [],
     comments: <string | undefined> undefined,
@@ -40,7 +41,7 @@ export const creationState = asRefRecord({
     validationState: <z.ZodError | undefined> undefined,
 });
 API.getIdByDropsByMusic({ path: { id: dropId } }).then(stupidErrorAlert)
-    .then((drop) => {
+    .then(async (drop) => {
         creationState.gtin.setValue(drop.gtin);
         creationState.title.setValue(drop.title);
         creationState.release.setValue(drop.release);
@@ -51,6 +52,7 @@ API.getIdByDropsByMusic({ path: { id: dropId } }).then(stupidErrorAlert)
         creationState.compositionCopyright.setValue(drop.compositionCopyright ?? "BBN Music (via bbn.one)");
         creationState.soundRecordingCopyright.setValue(drop.soundRecordingCopyright ?? "BBN Music (via bbn.one)");
         creationState.artwork.setValue(drop.artwork);
+        creationState.artworkData.setValue(drop.artwork ? await API.getArtworkByDropByMusic({ path: { dropId } }).then((x) => URL.createObjectURL(x.data)) : templateArtwork);
         creationState.songs.setValue(drop.songs ?? []);
         creationState.comments.setValue(drop.comments);
     })
@@ -134,27 +136,15 @@ const wizard = creationState.page.map((page) => {
         ).setGap();
     } else if (page == 2) {
         return Grid(
-            creationState.artwork.map((data) => {
-                const blob = asRef<string | number | undefined>(undefined);
+            creationState.artworkData.map((data) => {
+                const isUploading = asRef(false);
                 return Grid(
                     Grid(
                         Label("Upload your Cover").setFontWeight("bold").setTextSize("xl").setJustifySelf("center"),
-                        PrimaryButton("Manual Upload"),
-                        // .onClick(() => createFilePicker(allowedImageFormats.join(",")).then((file) => uploadArtwork(dropId, file, creationState.artwork, isUploading))),
+                        PrimaryButton("Manual Upload")
+                            .onClick(() => createFilePicker(allowedImageFormats.join(",")).then((file) => uploadArtwork(dropId, file, creationState.artwork, isUploading, creationState.artworkData))),
                     ).setTemplateColumns("1fr auto"),
-                    data
-                        ? Box(blob.map((x) =>
-                            Async(
-                                (async () => {
-                                    console.log(dropId);
-                                    const image = await API.getArtworkByDropByMusic({ path: { dropId } });
-                                    blob.setValue(URL.createObjectURL(image.data));
-                                    return Image(blob, "Drop Artwork").setMaxHeight("60%").setCssStyle("aspectRatio", "1 / 1");
-                                })(),
-                                Spinner(),
-                            )
-                        ))
-                        : Image(templateArtwork, "A Music Album Artwork."),
+                    Box(isUploading.map((uploading) => uploading ? Spinner() : Image(data!, "Drop Artwork").setMaxHeight("60%").setCssStyle("aspectRatio", "1 / 1"))),
                 ).setGap();
             }),
             footer(page),

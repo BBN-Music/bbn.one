@@ -65,27 +65,26 @@ export function uploadSongToDrop(songs: Reference<Song[]>, artists: ArtistRef[],
     }, file);
 }
 
-export function uploadArtwork(id: string, file: File, artwork: WriteSignal<string | undefined>, isUploading: WriteSignal<boolean>) {
+export function uploadArtwork(id: string, file: File, artwork: WriteSignal<string | undefined>, isUploading: WriteSignal<boolean>, data: WriteSignal<string | undefined>) {
     const blobUrl = URL.createObjectURL(file);
     isUploading.setValue(true);
+    data.setValue(blobUrl);
 
     setTimeout(() => {
+        //check if drop specific is needed
         StreamingUploadHandler(`music/drops/${id}/upload`, {
             failure: () => {
                 isUploading.setValue(false);
                 alert("Your Upload has failed. Please try a different file or try again later");
             },
             uploadDone: () => {
-                // artworkClientData.setValue(templateArtwork);
             },
-            credentials: () => APITools.token(),
+            credentials: () => APITools.token()!,
             backendResponse: (id) => {
-                // artworkClientData.setValue(file);
                 isUploading.setValue(false);
                 artwork.setValue(id);
             },
-            onUploadTick: async (percentage) => {
-                // artworkClientData.setValue(templateArtwork);
+            onUploadTick: async () => {
                 await delay(2);
             },
         }, file);

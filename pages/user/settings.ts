@@ -11,7 +11,7 @@ const state = asRefRecord({
     email: activeUser.email.value ?? "",
     name: activeUser.username.value,
     password: undefined,
-    verifyNewPassword: undefined,
+    verifyPassword: undefined,
     validationState: <string | undefined> undefined,
 });
 
@@ -27,14 +27,14 @@ appendBody(WebGenTheme(
                 TextInput(state.name, "Name"),
                 EmailInput(state.email, "Email"),
                 PasswordInput(state.password, "New Password"),
-                PasswordInput(state.verifyNewPassword, "Verify New Password"),
+                PasswordInput(state.verifyPassword, "Verify New Password"),
             ).setDynamicColumns(20).setGap(),
             PrimaryButton("Save").onPromiseClick(async () => {
                 const validator = z.object({
                     name: z.string().min(2),
                     email: z.string().email(),
-                    password: z.string().min(8).optional(),
-                    verifyNewPassword: z.string().min(8).refine((val) => state.password ? val == state.password.value : true, { message: "Your new password didn't match" }).optional(),
+                    password: z.string().min(8).refine((val) => state.verifyPassword ? val == state.verifyPassword.value : true, { message: "Your new password didn't match" }).optional(),
+                    verifyPassword: z.string().min(8).optional(),
                 }).safeParse(Object.fromEntries(Object.entries(state).map(([key, state]) => [key, state.value])));
 
                 if (validator.success) {

@@ -142,21 +142,21 @@ export type SearchReturn = {
 } | {
     _index: 'drops';
     _source: {
-        gtin?: string | null;
-        title: string;
-        artists: Array<ArtistRef>;
-        release: string;
-        language: string;
-        primaryGenre: string;
-        secondaryGenre: string;
-        compositionCopyright: string;
-        soundRecordingCopyright: string;
+        gtin?: string;
+        title?: string;
+        artists?: Array<ArtistRef>;
+        release?: string;
+        language?: string;
+        primaryGenre?: string;
+        secondaryGenre?: string;
+        compositionCopyright?: string;
+        soundRecordingCopyright?: string;
         artwork?: ObjectId;
-        songs: Array<ObjectId>;
+        songs?: Array<ObjectId>;
         comments?: string;
-        _id: ObjectId;
-        user: ObjectId;
-        type: DropType;
+        _id?: ObjectId;
+        user?: ObjectId;
+        type?: DropType;
     };
 } | {
     _index: 'files';
@@ -166,7 +166,21 @@ export type SearchReturn = {
     _source: Payout;
 } | {
     _index: 'songs';
-    _source: Song;
+    _source: {
+        _id?: ObjectId;
+        user?: ObjectId;
+        isrc?: string;
+        title?: string;
+        artists?: Array<ArtistRef>;
+        primaryGenre?: string;
+        secondaryGenre?: string;
+        year?: number;
+        country?: string;
+        language?: string;
+        explicit?: boolean;
+        instrumental?: boolean;
+        file?: ObjectId;
+    };
 } | {
     _index: 'transcripts';
     _source: Transcript;
@@ -276,6 +290,35 @@ export type FullDrop = {
     _id: ObjectId;
     user: ObjectId;
     type: DropType;
+};
+
+export type UpdateDrop = {
+    gtin?: string;
+    title?: string;
+    artists?: Array<ArtistRef>;
+    release?: string;
+    language?: string;
+    primaryGenre?: string;
+    secondaryGenre?: string;
+    compositionCopyright?: string;
+    soundRecordingCopyright?: string;
+    artwork?: string;
+    songs?: Array<{
+        _id: ObjectId;
+        isrc?: string;
+        title: string;
+        artists: Array<ArtistRef>;
+        primaryGenre: string;
+        secondaryGenre: string;
+        year: number;
+        country?: string;
+        language: string;
+        explicit: boolean;
+        instrumental: boolean;
+    }>;
+    comments?: string;
+    _id?: ObjectId;
+    type?: DropType;
 };
 
 export type Share = {
@@ -726,8 +769,6 @@ export type GetDropsByMusicResponses = {
         _id?: ObjectId;
         user?: ObjectId;
         type?: DropType;
-    } & {
-        gtin?: string | null;
     }>;
 };
 
@@ -786,23 +827,7 @@ export type GetIdByDropsByMusicResponses = {
 export type GetIdByDropsByMusicResponse = GetIdByDropsByMusicResponses[keyof GetIdByDropsByMusicResponses];
 
 export type PatchIdByDropsByMusicData = {
-    body?: {
-        gtin?: string;
-        title?: string;
-        artists?: Array<ArtistRef>;
-        release?: string;
-        language?: string;
-        primaryGenre?: string;
-        secondaryGenre?: string;
-        compositionCopyright?: string;
-        soundRecordingCopyright?: string;
-        artwork?: ObjectId;
-        songs?: Array<Song>;
-        comments?: string;
-        _id?: ObjectId;
-        user?: ObjectId;
-        type?: DropType;
-    };
+    body?: UpdateDrop;
     path: {
         id: string;
     };
@@ -1158,8 +1183,8 @@ export type GetUploadByAvatarBySetMeByUserData = {
 
 export type PutUserByUserData = {
     body?: {
-        name?: string;
-        email?: string;
+        name: string;
+        email: string;
         password?: string;
     };
     path?: never;
