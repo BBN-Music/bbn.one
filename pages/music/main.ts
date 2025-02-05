@@ -48,7 +48,10 @@ appendBody(
                     .map((isArtistsRoute) =>
                         isArtistsRoute
                             ? PrimaryButton("Create new Artist")
-                                .onClick(() => sheetStack.addSheet(createArtistSheet()))
+                                .onClick(async () => {
+                                    await createArtistSheet();
+                                    location.reload();
+                                })
                             : PrimaryButton("Create new Drop")
                                 .onPromiseClick(async () => {
                                     const { id } = await API.postMusic().then(stupidErrorAlert) as { id: string };

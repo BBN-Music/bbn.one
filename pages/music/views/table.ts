@@ -1,5 +1,5 @@
 import { sheetStack } from "shared/helper.ts";
-import { asRef, asRefRecord, Box, DropDown, Grid, Label, MaterialIcon, PrimaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
+import { asRef, asRefRecord, DropDown, Grid, Label, MaterialIcon, PrimaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
 import { API, Artist, ArtistRef, Song, stupidErrorAlert, zArtistTypes } from "../../../spec/mod.ts";
 import "./table.css";
 
@@ -61,33 +61,38 @@ export function ManageSongs(songs: WriteSignal<Song[]>, uploadingSongs: WriteSig
 }
 
 export const createArtistSheet = (name?: string) => {
+    const promise = Promise.withResolvers<void>();
     const state = asRefRecord({
         name,
         spotify: <string | undefined> undefined,
         apple: <string | undefined> undefined,
     });
-    return Grid(
-        SheetHeader("Create Artist", sheetStack),
-        TextInput(state.name, "Artist Name"),
-        TextInput(state.spotify, "Spotify URL"),
-        TextInput(state.apple, "Apple Music URL"),
-        PrimaryButton("Create")
-            .onPromiseClick(async () => {
-                await API.postArtistsByMusic({
-                    body: {
-                        name: state.name.value!,
-                        spotify: state.spotify.value,
-                        apple: state.apple.value,
-                    },
-                });
-                sheetStack.removeOne();
-                location.reload();
-            })
-            .setDisabled(state.name.map((x) => !x))
-            .setJustifySelf("start"),
-    )
-        .setGap()
-        .setWidth("25rem");
+    sheetStack.addSheet(
+        Grid(
+            SheetHeader("Create Artist", sheetStack),
+            TextInput(state.name, "Artist Name"),
+            TextInput(state.spotify, "Spotify URL"),
+            TextInput(state.apple, "Apple Music URL"),
+            PrimaryButton("Create")
+                .onPromiseClick(async () => {
+                    await API.postArtistsByMusic({
+                        body: {
+                            name: state.name.value!,
+                            spotify: state.spotify.value,
+                            apple: state.apple.value,
+                        },
+                    });
+                    sheetStack.removeOne();
+                    promise.resolve();
+                })
+                .setDisabled(state.name.map((x) => !x))
+                .setJustifySelf("start"),
+        )
+            .setGap()
+            .setWidth("25rem"),
+    );
+
+    return promise.promise;
 };
 
 export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: Artist[]) => {
@@ -99,14 +104,14 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
 
     return Grid(
         SheetHeader("Edit Artists", sheetStack),
-        Box(artistList.map((list) =>
-            Box(
+        artistList.map((list) =>
+            Grid(
                 Grid(
                     Label("Type").setFontWeight("bold"),
                     Label("Name").setFontWeight("bold"),
                     Label("Action").setFontWeight("bold"),
                 ).setTemplateColumns("30% 60% 10%"),
-                Box(artists.map((x) =>
+                ...artists.map((x) =>
                     x.map((artist) => {
                         const type = asRef(artist.type);
                         type.listen((val, oldVal) => {
@@ -117,21 +122,22 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
                             }
                         });
                         return Grid(
-                            DropDown(Object.values(zArtistTypes.enum), type),
-                            artist.type == zArtistTypes.enum.PRIMARY || artist.type == zArtistTypes.enum.FEATURING ? DropDown(list.map((x) => x._id), asRef("artist._id")) : TextInput(asRef("artist.name"), "Name"),
+                            DropDown(Object.values(zArtistTypes.enum), type, "Type"),
+                            artist.type == zArtistTypes.enum.PRIMARY || artist.type == zArtistTypes.enum.FEATURING ? DropDown(list.map((x) => x._id), asRef("artist._id"), "Name") : TextInput(asRef("artist.name"), "Name"),
                             PrimaryButton("").addPrefix(MaterialIcon("delete")).onClick(() => {
                                 x.splice(x.indexOf(artist), 1);
                                 artists.setValue(x);
                             }),
                         ).setGap().setTemplateColumns("30% 60% 10%");
                     })
-                )),
-            )
-        )),
+                ).value,
+            ).setGap()
+        ).value,
         PrimaryButton("Add Artist")
             .setJustifySelf("end")
             .onClick(() => artists.setValue([...artists.value, { type: zArtistTypes.enum.PRIMARY, _id: null! }])),
         PrimaryButton("Save")
             .onClick(() => sheetStack.removeOne()),
-    ).setGap();
+    )
+        .setGap();
 };

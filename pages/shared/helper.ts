@@ -3,7 +3,7 @@ import { LruCache, memoize } from "@std/cache";
 import { asRef, asRefRecord, Async, Box, Component, DropDown, Empty, Grid, Image, ImageComponent, Label, PrimaryButton, SheetHeader, Sheets, Spinner, WriteSignal } from "webgen/mod.ts";
 import { templateArtwork } from "../../assets/imports.ts";
 import { loginRequired } from "../../components/pages.ts";
-import { API, APITools, Drop, Permission, Song, stupidErrorAlert } from "../../spec/mod.ts";
+import { API, APITools, Permission, Song, stupidErrorAlert } from "../../spec/mod.ts";
 
 // @deno-types="https://raw.githubusercontent.com/lucsoft-DevTeam/lucsoft.de/main/custom.d.ts"
 import spotify from "../landing/assets/spotify.svg";
@@ -183,12 +183,12 @@ export function saveBlob(blob: Blob, fileName: string) {
     globalThis.URL.revokeObjectURL(url);
 }
 
-export function showPreviewImage(x: { artwork?: string, _id?: string }) {
+export function showPreviewImage(x: { artwork?: string; _id?: string }) {
     return x.artwork
         ? Async(
             (async () => {
                 const image = await API.getArtworkByDropByMusic({ path: { dropId: x._id! } }).then(stupidErrorAlert) as Blob;
-                return Image(URL.createObjectURL(image), "");
+                return Image(URL.createObjectURL(image), "Drop Artwork");
             })(),
             Spinner(),
         )

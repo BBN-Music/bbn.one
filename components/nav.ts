@@ -2,8 +2,8 @@ import { delay } from "@std/async";
 import { activeUser, IsLoggedIn, permCheck, showProfilePicture } from "shared/helper.ts";
 import "webgen/assets/font/font.css";
 import { Box, Color, Component, Content, css, Empty, Grid, Image, Label, MaterialIcon, mediaQueryRef, Popover, PrimaryButton } from "webgen/mod.ts";
-import { activeTitle, NavigationType, pages } from "./pages.ts";
 import { API } from "../spec/mod.ts";
+import { activeTitle, NavigationType, pages } from "./pages.ts";
 
 const isLightMode = mediaQueryRef("(prefers-color-scheme: light)");
 
@@ -108,8 +108,7 @@ function NavigationBar(type: NavigationType) {
                     .setTemplateColumns("max-content max-content")
                     .setAlignItems("center")
                     .setCssStyle("cursor", "pointer")
-                    .onClick(() => location.href = "/settings")
-                    .addClass("profile-button");
+                    .onClick(() => location.href = "/settings");
             }),
         )
             .setCssStyle("display", "contents"),
