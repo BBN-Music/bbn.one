@@ -201,5 +201,8 @@ export function DynaNavigation(type: NavigationType) {
             :host([type="Music"]) {
                 background: linear-gradient(166deg, #F19D2D 6.59%, #DB5721 101.73%);
             }
+            :host([type="Admin"]) {
+	            background: linear-gradient(166deg, #bb2727 6.59%, #b91616 101.73%);
+            }
         `);
 }

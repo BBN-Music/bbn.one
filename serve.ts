@@ -89,7 +89,7 @@ serve({
         // "c/music/edit": "./pages/music/edit.ts",
         // "c/music/payout": "./pages/payout/main.ts",
         "settings": "./pages/user/settings.ts",
-        // "admin": "./pages/admin/admin.ts",
+        "admin": "./pages/admin/main.ts",
         // "admin/review": "./pages/admin/review.ts",
         "wallet": "./pages/wallet/wallet.ts",
         // "share": "./pages/music/share.ts",
