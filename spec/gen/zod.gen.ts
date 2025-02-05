@@ -20,8 +20,55 @@ export const zPayout = z.object({
 
 export const zObjectId = z.string();
 
+export const zAdminDrop = z.object({
+    gtin: z.string().optional(),
+    title: z.string().optional(),
+    artists: z.array(z.union([
+        z.object({
+            _id: zObjectId,
+            type: z.union([
+                z.literal('PRIMARY'),
+                z.literal('FEATURING')
+            ])
+        }),
+        z.object({
+            name: z.string(),
+            type: z.union([
+                z.literal('PRODUCER'),
+                z.literal('SONGWRITER')
+            ])
+        })
+    ])).optional(),
+    release: z.string().date().optional(),
+    language: z.string().optional(),
+    primaryGenre: z.string().optional(),
+    secondaryGenre: z.string().optional(),
+    compositionCopyright: z.string().optional(),
+    soundRecordingCopyright: z.string().optional(),
+    artwork: zObjectId.optional(),
+    songs: z.array(zObjectId).optional(),
+    comments: z.string().optional(),
+    _id: zObjectId.optional(),
+    user: z.string().optional(),
+    type: z.enum([
+        'PUBLISHED',
+        'PUBLISHING',
+        'PRIVATE',
+        'UNDER_REVIEW',
+        'UNSUBMITTED',
+        'REVIEW_DECLINED'
+    ]).optional()
+}).merge(z.object({
+    accountType: z.enum([
+        'DEFAULT',
+        'SUBSCRIBED',
+        'VIP'
+    ]),
+    priority: z.number()
+}));
+
 export const zDrop = z.object({
-    gtin: z.string(),
+    gtin: z.string().optional(),
     title: z.string(),
     artists: z.array(z.union([
         z.object({
@@ -120,8 +167,10 @@ export const zUser = z.object({
         })
     }),
     permissions: z.array(z.string()),
-    groups: z.array(zObjectId)
+    groups: z.array(z.string())
 });
+
+export const zObjectId2 = z.string();
 
 export const zArtist = z.object({
     _id: zObjectId,
@@ -131,6 +180,37 @@ export const zArtist = z.object({
     spotify: z.string().optional(),
     apple: z.string().optional()
 });
+
+export const zAdminWallet = z.object({
+    _id: zObjectId,
+    transactions: z.array(z.object({
+        amount: z.number(),
+        timestamp: z.string(),
+        type: z.enum([
+            'RESTRAINED',
+            'UNRESTRAINED'
+        ]),
+        description: z.string(),
+        counterParty: z.string()
+    })),
+    cut: z.number(),
+    user: zObjectId,
+    userName: z.string().optional(),
+    email: z.string().optional(),
+    balance: z.object({
+        restrained: z.number(),
+        unrestrained: z.number()
+    }).optional(),
+    stripeAccountId: z.string().optional(),
+    accountType: zAccountType
+}).merge(z.object({
+    email: z.string().email(),
+    userName: z.string(),
+    balance: z.object({
+        restrained: z.number(),
+        unrestrained: z.number()
+    })
+}));
 
 export const zWallet = z.object({
     _id: zObjectId,
@@ -167,10 +247,7 @@ export const zGroup = z.object({
     permission: z.array(z.string())
 });
 
-export const zSearchReturn = z.object({
-    _id: z.string(),
-    _score: z.number()
-}).merge(z.union([
+export const zSearchReturn = z.intersection(z.union([
     z.object({
         _index: z.literal('access'),
         _source: z.unknown().optional()
@@ -254,7 +331,7 @@ export const zSearchReturn = z.object({
     z.object({
         _index: z.literal('user-events'),
         _source: z.object({
-            userId: zObjectId,
+            userId: zObjectId2,
             storeToken: z.string().optional(),
             type: z.enum([
                 'auth',
@@ -309,14 +386,17 @@ export const zSearchReturn = z.object({
                 })
             }),
             permissions: z.array(z.string()),
-            groups: z.array(zObjectId)
+            groups: z.array(zObjectId2)
         })
     }),
     z.object({
         _index: z.literal('wallets'),
         _source: zWallet
     })
-]));
+]), z.object({
+    _id: z.string(),
+    _score: z.number()
+}));
 
 export const zFile = z.object({
     _id: zObjectId,
@@ -345,7 +425,7 @@ export const zTranscript = z.object({
 });
 
 export const zUserHistoryEvent = z.object({
-    userId: zObjectId,
+    userId: zObjectId2,
     storeToken: z.string().optional(),
     type: z.enum([
         'auth',
@@ -384,7 +464,7 @@ export const zUserHistoryEvent = z.object({
 });
 
 export const zFullDrop = z.object({
-    gtin: z.string(),
+    gtin: z.string().optional(),
     title: z.string(),
     artists: z.array(zArtistRef),
     release: z.string().date(),
@@ -426,7 +506,6 @@ export const zUpdateDrop = z.object({
         instrumental: z.boolean()
     })).optional(),
     comments: z.string().optional(),
-    _id: zObjectId.optional(),
     type: zDropType.optional()
 });
 
@@ -459,7 +538,7 @@ export const zPayoutResponse = z.object({
     moneythisperiod: z.string(),
     period: z.string(),
     streams: z.number(),
-    _id: zObjectId
+    _id: zObjectId2
 });
 
 export const zArtistTypes = z.enum([
@@ -484,24 +563,24 @@ export const zRequestPayoutResponse = z.union([
     })
 ]);
 
-export const zGetDropsByAdminResponse = z.array(z.unknown());
+export const zGetDropsByAdminResponse = z.array(zAdminDrop);
 
 export const zGetIdByDropsByAdminResponse = z.object({
-    gtin: z.string(),
-    title: z.string(),
-    artists: z.array(zArtistRef),
-    release: z.string().date(),
-    language: z.string(),
-    primaryGenre: z.string(),
-    secondaryGenre: z.string(),
-    compositionCopyright: z.string(),
-    soundRecordingCopyright: z.string(),
+    gtin: z.string().optional(),
+    title: z.string().optional(),
+    artists: z.array(zArtistRef).optional(),
+    release: z.string().date().optional(),
+    language: z.string().optional(),
+    primaryGenre: z.string().optional(),
+    secondaryGenre: z.string().optional(),
+    compositionCopyright: z.string().optional(),
+    soundRecordingCopyright: z.string().optional(),
     artwork: zObjectId.optional(),
-    songs: z.array(zSong),
+    songs: z.array(zSong).optional(),
     comments: z.string().optional(),
-    _id: zObjectId,
-    user: zUser,
-    type: zDropType
+    _id: zObjectId.optional(),
+    user: zUser.optional(),
+    type: zDropType.optional()
 }).merge(z.object({
     artistList: z.array(zArtist)
 }));
@@ -512,7 +591,7 @@ export const zGetPayoutsByAdminResponse = z.array(z.array(zPayout));
 
 export const zGetQueryBySearchByAdminResponse = z.array(zSearchReturn);
 
-export const zGetWalletsByAdminResponse = z.array(z.unknown());
+export const zGetWalletsByAdminResponse = z.array(zAdminWallet);
 
 export const zGetArtistsByMusicResponse = z.array(zArtist);
 
