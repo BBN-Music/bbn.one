@@ -5,14 +5,13 @@ import bbnAdminLogo from "../assets/img/bbnAdmin.svg";
 // @deno-types="https://raw.githubusercontent.com/lucsoft-DevTeam/lucsoft.de/master/custom.d.ts"
 import bbnWalletLogo from "../assets/img/bbnWallet.svg";
 
-import { Permission } from "shared/mod.ts";
+import { Permission } from "../spec/mod.ts";
 
 export type NavigationType = "Landing" | "Music" | "Settings" | "Admin" | "Wallet";
 
 // 0: no login required, 1: show only when logged in, 2: show only when logged out
 export const pages: [logo: string, perm: Array<Permission>, route: string, login: 0 | 1 | 2][] = [
-    [bbnMusicLogo, [], "/c/music", 1],
-    [bbnMusicLogo, [], "/music", 2],
+    [bbnMusicLogo, [], "/c/music", 0],
     [bbnWalletLogo, [], "/wallet", 1],
     [bbnAdminLogo, ["/bbn/manage", "/hmsys/user"], "/admin", 1],
 ];

@@ -26,9 +26,9 @@ createRoute({
             const published = list.filter((x) => x.type === zDropType.enum.PUBLISHED);
 
             if (published.length >= 1) {
-                publishedDrops.route.navigate({});
+                publishedDrops.route.navigate({}, { history: "replace" });
             } else {
-                draftsDropsPage.route.navigate({});
+                draftsDropsPage.route.navigate({}, { history: "replace" });
             }
         },
     },

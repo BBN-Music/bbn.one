@@ -183,11 +183,11 @@ export function saveBlob(blob: Blob, fileName: string) {
     globalThis.URL.revokeObjectURL(url);
 }
 
-export function showPreviewImage(x: Drop) {
+export function showPreviewImage(x: { artwork?: string, _id?: string }) {
     return x.artwork
         ? Async(
             (async () => {
-                const image = await API.getArtworkByDropByMusic({ path: { dropId: x._id } }).then(stupidErrorAlert) as Blob;
+                const image = await API.getArtworkByDropByMusic({ path: { dropId: x._id! } }).then(stupidErrorAlert) as Blob;
                 return Image(URL.createObjectURL(image), "");
             })(),
             Spinner(),
