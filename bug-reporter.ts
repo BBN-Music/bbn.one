@@ -18,8 +18,8 @@ function report(msg: any) {
             type: "web-frontend",
             platform: browser.os?.family,
             platformVersion: browser.os?.version,
-            error: msg instanceof Error ? msg.message : msg,
-            errorStack: (msg instanceof Error ? msg.stack : msg),
+            error: msg.message.reason ?? msg,
+            errorStack: msg.stack.reason ?? msg,
             browser: browser.name,
             // null safe version of getting the error
             userId: localStorage["access-token"]?.split(".").filter((_: string, i: number) => i <= 1).map((x: string) => JSON.parse(atob(x))).filter((_: string, i: number) => i == 1).map((it: any) => it.userId).join(),
