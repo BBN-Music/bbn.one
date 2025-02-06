@@ -593,6 +593,8 @@ export const zGetQueryBySearchByAdminResponse = z.array(zSearchReturn);
 
 export const zGetWalletsByAdminResponse = z.array(zAdminWallet);
 
+export const zGetIdByWalletsByAdminResponse = zAdminWallet;
+
 export const zGetArtistsByMusicResponse = z.array(zArtist);
 
 export const zPostArtistsByMusicResponse = z.object({

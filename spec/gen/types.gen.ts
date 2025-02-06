@@ -551,6 +551,33 @@ export type GetWalletsByAdminResponses = {
 
 export type GetWalletsByAdminResponse = GetWalletsByAdminResponses[keyof GetWalletsByAdminResponses];
 
+export type GetIdByWalletsByAdminData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/@bbn/admin/wallets/{id}';
+};
+
+export type GetIdByWalletsByAdminResponses = {
+    /**
+     * Successful operation
+     */
+    200: AdminWallet;
+};
+
+export type GetIdByWalletsByAdminResponse = GetIdByWalletsByAdminResponses[keyof GetIdByWalletsByAdminResponses];
+
+export type PatchIdByWalletsByAdminData = {
+    body?: Wallet;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/@bbn/admin/wallets/{id}';
+};
+
 export type PostEmailByAuthData = {
     body?: {
         [key: string]: unknown;
