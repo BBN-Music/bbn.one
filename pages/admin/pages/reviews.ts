@@ -21,6 +21,6 @@ createPage(
         weight: 3,
     },
     Content(
-        reviews.map((reviews) => reviews === "loading" ? Spinner() : reviews.map((review) => ReviewEntry(review)).reverse()),
+        reviews.map((reviews) => reviews === "loading" ? Spinner() : reviews.map((review) => ReviewEntry(review))),
     ),
 );

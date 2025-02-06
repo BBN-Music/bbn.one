@@ -5,17 +5,17 @@ import { asRef, Box, Empty, Entry, Grid, Image, Label } from "webgen/mod.ts";
 import { templateArtwork } from "../../../assets/imports.ts";
 import { type Artist, Drop, DropType, zDropType } from "../../../spec/mod.ts";
 
-export function ReviewEntry(x: Partial<Drop>) {
+export function ReviewEntry(x: Partial<Drop>, small: boolean = false) {
     return Entry(
         BasicEntry(
             Box(
-                Label(x.title ?? "(no drop name)").setFontWeight("bold").setTextSize("3xl"),
-                Label(x.release ?? "(no release date)").setTextSize("2xl").setPadding("0 0 0 0.5rem"),
+                Label(x.title ?? "(no drop name)").setFontWeight("bold").setTextSize(small ? "xl" : "3xl"),
+                Label(x.release ?? "(no release date)").setTextSize(small ? "lg" : "2xl").setPadding("0 0 0 0.5rem"),
             ),
             `user: ${x.user} - gtin: ${x.gtin ?? "(no GTIN)"} - id: ${x._id}`,
         )
             .onClick(() => location.href = `/admin/review?id=${x._id}`)
-            .addPrefix(showPreviewImage(x).setWidth("100px")),
+            .addPrefix(showPreviewImage(x).setWidth(small ? "50px" : "100px")),
     );
 }
 
