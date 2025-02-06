@@ -1,19 +1,26 @@
 import { RegisterAuthRefresh } from "shared/helper.ts";
-import { Navigation } from "shared/navigation.ts";
-import { appendBody, Content, createPage, createRoute, FullWidthSection, Label, WebGenTheme } from "webgen/mod.ts";
-import { DynaNavigation } from "../../../components/nav.ts";
+import { BasicEntry } from "shared/mod.ts";
+import { asRef, Content, createPage, createRoute, Entry, Label } from "webgen/mod.ts";
+import { API, Group, stupidErrorAlert } from "../../../spec/mod.ts";
 
 await RegisterAuthRefresh();
+
+const groups = asRef<Group[] | "loading">("loading");
 
 createPage(
     {
         route: createRoute({
             path: "/admin?list=groups",
+            events: {
+                onLazyInit: async () => {
+                    groups.setValue(await API.getGroupsByAdmin().then(stupidErrorAlert));
+                },
+            },
         }),
         label: "Groups",
         weight: 4,
     },
     Content(
-        Label("test"),
+        groups.map((groups) => groups === "loading" ? Label("Loading...") : groups.map((group) => Entry(BasicEntry(group.displayName, "Permissions: "+group.permission.join(", "))))),
     ),
 );

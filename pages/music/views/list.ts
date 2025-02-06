@@ -1,9 +1,23 @@
 import { showPreviewImage } from "shared/helper.ts";
 import { placeholder } from "shared/list.ts";
-import { asRef, Empty, Entry, Grid, Image, Label } from "webgen/mod.ts";
+import { BasicEntry } from "shared/mod.ts";
+import { asRef, Box, Empty, Entry, Grid, Image, Label } from "webgen/mod.ts";
 import { templateArtwork } from "../../../assets/imports.ts";
 import { type Artist, Drop, DropType, zDropType } from "../../../spec/mod.ts";
-import { BasicEntry } from "shared/mod.ts";
+
+export function ReviewEntry(x: Partial<Drop>) {
+    return Entry(
+        BasicEntry(
+            Box(
+                Label(x.title ?? "(no drop name)").setFontWeight("bold").setTextSize("3xl"),
+                Label(x.release ?? "(no release date)").setTextSize("2xl").setPadding("0 0 0 0.5rem"),
+            ),
+            `user: ${x.user} - gtin: ${x.gtin ?? "(no GTIN)"} - id: ${x._id}`,
+        )
+            .onClick(() => location.href = `/admin/review?id=${x._id}`)
+            .addPrefix(showPreviewImage(x).setWidth("100px")),
+    );
+}
 
 export function DropEntry(x: Partial<Drop>) {
     return Entry(

@@ -1,12 +1,11 @@
 import { RegisterAuthRefresh } from "shared/helper.ts";
-import { asRef, Content, createPage, createRoute, Entry, Label, Spinner } from "webgen/mod.ts";
+import { asRef, Content, createPage, createRoute, Spinner } from "webgen/mod.ts";
 import { AdminDrop, API, stupidErrorAlert } from "../../../spec/mod.ts";
-import { BasicEntry } from "shared/components.ts";
-import { DropEntry, musicList } from "../../music/views/list.ts";
+import { ReviewEntry } from "../../music/views/list.ts";
 
 await RegisterAuthRefresh();
 
-const reviews = asRef<AdminDrop[] | "loading">("loading");
+export const reviews = asRef<AdminDrop[] | "loading">("loading");
 
 createPage(
     {
@@ -22,10 +21,6 @@ createPage(
         weight: 3,
     },
     Content(
-        reviews.map((reviews) => 
-            reviews === "loading" ? Spinner() : reviews.map(review =>
-                DropEntry(review)
-            )
-         )
+        reviews.map((reviews) => reviews === "loading" ? Spinner() : reviews.map((review) => ReviewEntry(review)).reverse()),
     ),
 );

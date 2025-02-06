@@ -1,5 +1,5 @@
 import type { ChartConfiguration, ChartConfigurationCustomTypesPerDataset, ChartType, DefaultDataPoint } from "https://esm.sh/chart.js@4.4.6/auto";
-import { Box, Empty, Grid, Label, lazy } from "webgen/mod.ts";
+import { Box, Component, Empty, Grid, Label, lazy } from "webgen/mod.ts";
 
 const lazyChart = lazy(() => import("https://esm.sh/chart.js@4.4.6/auto"));
 
@@ -13,10 +13,10 @@ export const Chart = <TType extends ChartType = ChartType, TData = DefaultDataPo
     return Box(component).addClass("chart");
 };
 
-export function BasicEntry(title: string, subtitle?: string) {
+export function BasicEntry(title: string | Component, subtitle?: string) {
     return Grid(
         Grid(
-            Label(title).setTextSize("3xl").setFontWeight("bold"),
+            typeof title === "string" ? Label(title).setTextSize("3xl").setFontWeight("bold") : title,
             subtitle ? Label(subtitle) : Empty(),
         )
             .setHeight("max-content")

@@ -1263,7 +1263,3 @@ export type GetHealthzData = {
     query?: never;
     url: '/healthz';
 };
-
-export type ClientOptions = {
-    baseUrl: 'https://example.one/api' | (string & {});
-};
