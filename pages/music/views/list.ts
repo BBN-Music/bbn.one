@@ -15,14 +15,14 @@ export function ReviewEntry(x: Partial<Drop>, small: boolean = false) {
             `user: ${x.user} - gtin: ${x.gtin ?? "(no GTIN)"} - id: ${x._id}`,
         )
             .onClick(() => location.href = `/admin/review?id=${x._id}`)
-            .addPrefix(showPreviewImage(x).setWidth(small ? "50px" : "100px")),
+            .addPrefix(showPreviewImage(x).setWidth(small ? "50px" : "100px").setRadius("large")),
     );
 }
 
 export function DropEntry(x: Partial<Drop>) {
     return Entry(
         BasicEntry(x.title ?? "(no drop name)", x.release ?? "(no release date)")
-            .addPrefix(showPreviewImage(x).setWidth("100px"))
+            .addPrefix(showPreviewImage(x).setWidth("100px").setRadius("large"))
             .addSuffix((() => {
                 if (x.type == zDropType.enum.UNDER_REVIEW) {
                     return Label("Under Review")
@@ -46,7 +46,7 @@ export function DropEntry(x: Partial<Drop>) {
 }
 
 export function ArtistEntry(x: Artist) {
-    return Entry(BasicEntry(x.name).addPrefix(Image(templateArtwork, "Artist Profile Picture").setWidth("100px")));
+    return Entry(BasicEntry(x.name).addPrefix(Image(templateArtwork, "Artist Profile Picture").setWidth("100px").setRadius("large")));
     // TODO: Add used on x songs, x drops, maybe even streams?
     // Label("Used on ")
     //TODO: links

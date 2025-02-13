@@ -22,7 +22,7 @@ export function BasicEntry(title: string | Component, subtitle?: string) {
             .setHeight("max-content")
             .setAlignSelf("center"),
     )
-        .setGap()
+        .setGap("1rem")
         .setTemplateColumns("max-content auto min-content")
         .setPadding("1rem 0");
 }

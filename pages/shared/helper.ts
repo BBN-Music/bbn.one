@@ -191,7 +191,7 @@ export function showPreviewImage(x: { artwork?: string; _id?: string }) {
                 return Image(URL.createObjectURL(image), "Drop Artwork");
             })(),
             Spinner(),
-        )
+        ).setCssStyle("overflow", "hidden")
         : Image(templateArtwork, "A Placeholder Artwork.");
 }
 
