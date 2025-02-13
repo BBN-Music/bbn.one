@@ -2,30 +2,17 @@
 
 import { z } from 'zod/mod.ts';
 
-export const zPayout = z.object({
-    _id: z.string(),
-    file: z.string(),
+export const zPayoutList = z.object({
     period: z.string(),
-    entries: z.array(z.object({
-        isrc: z.string(),
-        data: z.array(z.object({
-            store: z.string(),
-            territory: z.string(),
-            quantity: z.number(),
-            revenue: z.number()
-        }))
-    })),
-    user: z.string()
+    sum: z.number()
 });
-
-export const zObjectId = z.string();
 
 export const zAdminDrop = z.object({
     gtin: z.string().optional(),
     title: z.string().optional(),
     artists: z.array(z.union([
         z.object({
-            _id: zObjectId,
+            _id: z.string(),
             type: z.union([
                 z.literal('PRIMARY'),
                 z.literal('FEATURING')
@@ -45,10 +32,10 @@ export const zAdminDrop = z.object({
     secondaryGenre: z.string().optional(),
     compositionCopyright: z.string().optional(),
     soundRecordingCopyright: z.string().optional(),
-    artwork: zObjectId.optional(),
-    songs: z.array(zObjectId).optional(),
+    artwork: z.string().optional(),
+    songs: z.array(z.string()).optional(),
     comments: z.string().optional(),
-    _id: zObjectId.optional(),
+    _id: z.string().optional(),
     user: z.string().optional(),
     type: z.enum([
         'PUBLISHED',
@@ -72,7 +59,7 @@ export const zDrop = z.object({
     title: z.string(),
     artists: z.array(z.union([
         z.object({
-            _id: zObjectId,
+            _id: z.string(),
             type: z.union([
                 z.literal('PRIMARY'),
                 z.literal('FEATURING')
@@ -92,11 +79,11 @@ export const zDrop = z.object({
     secondaryGenre: z.string(),
     compositionCopyright: z.string(),
     soundRecordingCopyright: z.string(),
-    artwork: zObjectId.optional(),
-    songs: z.array(zObjectId),
+    artwork: z.string().optional(),
+    songs: z.array(z.string()),
     comments: z.string().optional(),
-    _id: zObjectId,
-    user: zObjectId,
+    _id: z.string(),
+    user: z.string(),
     type: z.enum([
         'PUBLISHED',
         'PUBLISHING',
@@ -109,7 +96,7 @@ export const zDrop = z.object({
 
 export const zArtistRef = z.union([
     z.object({
-        _id: zObjectId,
+        _id: z.string(),
         type: z.union([
             z.literal('PRIMARY'),
             z.literal('FEATURING')
@@ -123,6 +110,8 @@ export const zArtistRef = z.union([
         ])
     })
 ]);
+
+export const zObjectId = z.string();
 
 export const zDropType = z.enum([
     'PUBLISHED',
@@ -193,7 +182,7 @@ export const zAdminWallet = z.object({
         description: z.string(),
         counterParty: z.string()
     })),
-    cut: z.number(),
+    cut: z.string(),
     user: zObjectId,
     userName: z.string().optional(),
     email: z.string().optional(),
@@ -249,14 +238,6 @@ export const zGroup = z.object({
 
 export const zSearchReturn = z.intersection(z.union([
     z.object({
-        _index: z.literal('access'),
-        _source: z.unknown().optional()
-    }),
-    z.object({
-        _index: z.literal('artists'),
-        _source: zArtist
-    }),
-    z.object({
         _index: z.literal('drops'),
         _source: z.object({
             gtin: z.string().optional(),
@@ -277,23 +258,6 @@ export const zSearchReturn = z.intersection(z.union([
         })
     }),
     z.object({
-        _index: z.literal('files'),
-        _source: z.object({
-            _id: zObjectId,
-            length: z.number(),
-            chunkSize: z.number(),
-            uploadDate: z.string(),
-            filename: z.string(),
-            metadata: z.object({
-                type: z.string()
-            })
-        })
-    }),
-    z.object({
-        _index: z.literal('payouts'),
-        _source: zPayout
-    }),
-    z.object({
         _index: z.literal('songs'),
         _source: z.object({
             _id: zObjectId.optional(),
@@ -309,64 +273,6 @@ export const zSearchReturn = z.intersection(z.union([
             explicit: z.boolean().optional(),
             instrumental: z.boolean().optional(),
             file: zObjectId.optional()
-        })
-    }),
-    z.object({
-        _index: z.literal('transcripts'),
-        _source: z.object({
-            messages: z.array(z.object({
-                author: z.string(),
-                authorid: z.string(),
-                content: z.string(),
-                timestamp: z.number(),
-                avatar: z.string(),
-                attachments: z.array(z.string()).optional(),
-                embeds: z.array(z.unknown()).optional()
-            })),
-            closed: z.string(),
-            with: z.string(),
-            _id: zObjectId
-        })
-    }),
-    z.object({
-        _index: z.literal('user-events'),
-        _source: z.object({
-            userId: zObjectId2,
-            storeToken: z.string().optional(),
-            type: z.enum([
-                'auth',
-                'refresh-auth',
-                'action'
-            ]),
-            ip: z.string().optional(),
-            source: z.object({
-                type: z.enum([
-                    'browser',
-                    'mobile'
-                ]),
-                method: z.union([
-                    z.object({
-                        type: z.literal('webAuthn'),
-                        id: z.string(),
-                        authenticatorAttachement: z.enum([
-                            'cross-platform',
-                            'platform'
-                        ]),
-                        publicKey: z.string()
-                    }),
-                    z.object({
-                        type: z.literal('oauth'),
-                        provider: z.string()
-                    }),
-                    z.object({
-                        type: z.literal('password')
-                    })
-                ]).optional(),
-                platform: z.string().optional(),
-                platformVersion: z.string().optional(),
-                legacyUserAgent: z.string().optional()
-            }).optional(),
-            meta: z.object({}).optional()
         })
     }),
     z.object({
@@ -397,71 +303,6 @@ export const zSearchReturn = z.intersection(z.union([
     _id: z.string(),
     _score: z.number()
 }));
-
-export const zFile = z.object({
-    _id: zObjectId,
-    length: z.number(),
-    chunkSize: z.number(),
-    uploadDate: z.string(),
-    filename: z.string(),
-    metadata: z.object({
-        type: z.string()
-    })
-});
-
-export const zTranscript = z.object({
-    messages: z.array(z.object({
-        author: z.string(),
-        authorid: z.string(),
-        content: z.string(),
-        timestamp: z.number(),
-        avatar: z.string(),
-        attachments: z.array(z.string()).optional(),
-        embeds: z.array(z.unknown()).optional()
-    })),
-    closed: z.string(),
-    with: z.string(),
-    _id: zObjectId
-});
-
-export const zUserHistoryEvent = z.object({
-    userId: zObjectId2,
-    storeToken: z.string().optional(),
-    type: z.enum([
-        'auth',
-        'refresh-auth',
-        'action'
-    ]),
-    ip: z.string().optional(),
-    source: z.object({
-        type: z.enum([
-            'browser',
-            'mobile'
-        ]),
-        method: z.union([
-            z.object({
-                type: z.literal('webAuthn'),
-                id: z.string(),
-                authenticatorAttachement: z.enum([
-                    'cross-platform',
-                    'platform'
-                ]),
-                publicKey: z.string()
-            }),
-            z.object({
-                type: z.literal('oauth'),
-                provider: z.string()
-            }),
-            z.object({
-                type: z.literal('password')
-            })
-        ]).optional(),
-        platform: z.string().optional(),
-        platformVersion: z.string().optional(),
-        legacyUserAgent: z.string().optional()
-    }).optional(),
-    meta: z.object({}).optional()
-});
 
 export const zFullDrop = z.object({
     gtin: z.string().optional(),
@@ -587,7 +428,7 @@ export const zGetIdByDropsByAdminResponse = z.object({
 
 export const zGetGroupsByAdminResponse = z.array(zGroup);
 
-export const zGetPayoutsByAdminResponse = z.array(z.array(zPayout));
+export const zGetPayoutsByAdminResponse = z.array(zPayoutList);
 
 export const zGetQueryBySearchByAdminResponse = z.array(zSearchReturn);
 
