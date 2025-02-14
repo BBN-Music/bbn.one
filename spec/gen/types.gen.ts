@@ -886,6 +886,24 @@ export type GetFulldropByMusicResponses = {
 
 export type GetFulldropByMusicResponse = GetFulldropByMusicResponses[keyof GetFulldropByMusicResponses];
 
+export type GetFirstByGenresByMusicData = {
+    body?: never;
+    path: {
+        first: string;
+    };
+    query?: never;
+    url: '/api/@bbn/music/genres/{first}';
+};
+
+export type GetFirstByGenresByMusicResponses = {
+    /**
+     * Successful operation
+     */
+    200: Array<string>;
+};
+
+export type GetFirstByGenresByMusicResponse = GetFirstByGenresByMusicResponses[keyof GetFirstByGenresByMusicResponses];
+
 export type GetSlugByShareByMusicData = {
     body?: {
         [key: string]: unknown;
