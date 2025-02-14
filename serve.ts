@@ -21,13 +21,14 @@ await createClient({
     ],
 });
 function fixImports(path: string) {
-    Deno.writeTextFileSync(path,
+    Deno.writeTextFileSync(
+        path,
         Deno.readTextFileSync(path)
             .replaceAll(".gen';", ".gen.ts';")
-            .replaceAll("'zod';", "'zod/mod.ts';")
+            .replaceAll("'zod';", "'zod/mod.ts';"),
     );
 }
-[ "spec/gen/sdk.gen.ts", "spec/gen/zod.gen.ts" ].forEach(fixImports);
+["spec/gen/sdk.gen.ts", "spec/gen/zod.gen.ts"].forEach(fixImports);
 Deno.removeSync("spec/gen/index.ts");
 
 const title = new Map(Object.entries({
@@ -86,7 +87,7 @@ serve({
         // "oauth": "./pages/user/oauth.ts",
         "c/music": "./pages/music/main.ts",
         "c/music/new-drop": "./pages/music/newDrop.ts",
-        // "c/music/edit": "./pages/music/edit.ts",
+        "c/music/edit": "./pages/edit/main.ts",
         // "c/music/payout": "./pages/payout/main.ts",
         "settings": "./pages/user/settings.ts",
         "admin": "./pages/admin/main.ts",
