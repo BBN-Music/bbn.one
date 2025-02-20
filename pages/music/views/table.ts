@@ -1,10 +1,42 @@
-import { sheetStack } from "shared/helper.ts";
-import { asRef, asRefRecord, DropDown, Grid, Label, MaterialIcon, PrimaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
+import { ProfilePicture, sheetStack } from "shared/helper.ts";
+import { asRef, asRefRecord, Box, Checkbox, DropDown, Empty, Grid, Label, MaterialIcon, PrimaryButton, SecondaryButton, SheetHeader, Table, TextInput, WriteSignal } from "webgen/mod.ts";
 import { API, Artist, ArtistRef, Song, stupidErrorAlert, zArtistTypes } from "../../../spec/mod.ts";
 import "./table.css";
+import languages from "../../../data/language.json" with { type: "json" };
 
-export function ManageSongs(songs: WriteSignal<Song[]>, uploadingSongs: WriteSignal<{ [uploadId: string]: number }[]>, primaryGenre: string, artistList?: Artist[]) {
-    return Table(songs);
+export function ManageSongs(songs: WriteSignal<Song[]>, primaryGenre: WriteSignal<string | undefined>, genres: { primary: WriteSignal<string[]>, secondary: WriteSignal<Record<string, string[]>> }, artistList?: Artist[]) {
+    return Grid(
+        Label("Manage your Songs").setTextSize("2xl"),
+        Grid(
+            Label("Title"),
+            Label("Artists"),
+            Label("Year"),
+            Label("Language"),
+            Label("Secondary Genre"),
+            Label("Instrumental"),
+            Label("Explicit"),
+        ).setEvenColumns(8).setGap(),
+        Box(songs.map((songs) =>
+            songs.map((song) => {
+                const songobj = asRefRecord({ ...song, year: song.year.toString() });
+                return Grid(
+                    TextInput(songobj.title, "Title"),
+                    Box(
+                        Empty(),
+                        ...song.artists.map((artist) => "name" in artist ? ProfilePicture(Label(""), artist.name) : ProfilePicture(Label(""), artist._id)),
+                        SecondaryButton("add")
+                    ),
+                    TextInput(songobj.year, "Year"),
+                    DropDown(Object.keys(languages), songobj.language, "Language").setValueRender((x) => (languages as Record<string, string>)[ x ]),
+                    primaryGenre.map((primaryGenre) => DropDown(primaryGenre ? genres.secondary.getValue()[ primaryGenre ] : [], songobj.secondaryGenre, "Secondary Genre")).value,
+                    Checkbox(songobj.instrumental).setDisabled(songobj.explicit),
+                    Checkbox(songobj.explicit).setDisabled(songobj.instrumental),
+                    PrimaryButton("").addPrefix(MaterialIcon("delete")).setWidth("min-content")
+                ).setEvenColumns(8).setGap();
+            })
+        )),
+    );
+    // return Table(songs);
     // return new Table2(songs)
     //     .setColumnTemplate("auto max-content max-content max-content max-content max-content max-content min-content")
     //     .addColumn("Title", (song) =>
@@ -123,7 +155,7 @@ export const EditArtistsDialog = (artists: WriteSignal<ArtistRef[]>, provided?: 
                         });
                         return Grid(
                             DropDown(Object.values(zArtistTypes.enum), type, "Type"),
-                            artist.type == zArtistTypes.enum.PRIMARY || artist.type == zArtistTypes.enum.FEATURING ? DropDown(list.map((x) => x._id), asRef("artist._id"), "Name") : TextInput(asRef("artist.name"), "Name"),
+                            artist.type == zArtistTypes.enum.PRIMARY || artist.type == zArtistTypes.enum.FEATURING ? DropDown(list.map((x) => x._id), asRef(artist._id), "Name").setValueRender(id => artistList.get().find(a => a._id === id)?.name ?? "Name not found") : TextInput(asRef("artist.name"), "Name"),
                             PrimaryButton("").addPrefix(MaterialIcon("delete")).onClick(() => {
                                 x.splice(x.indexOf(artist), 1);
                                 artists.setValue(x);

@@ -1,14 +1,38 @@
-import "./pages/drop.ts";
-import "./pages/overview.ts";
-
-import { RegisterAuthRefresh, sheetStack } from "shared/helper.ts";
-import { Navigation } from "shared/mod.ts";
-import { appendBody, Content, createRoute, DialogContainer, FullWidthSection, StartRouting, WebGenTheme } from "webgen/mod.ts";
+import { RegisterAuthRefresh, sheetStack, showPreviewImage } from "shared/helper.ts";
+import { appendBody, asRefRecord, Content, createRoute, DateInput, DialogContainer, DropDown, FullWidthSection, Grid, Label, SecondaryButton, StartRouting, TextInput, WebGenTheme } from "webgen/mod.ts";
 import { DynaNavigation } from "../../components/nav.ts";
-import { zObjectId } from "../../spec/mod.ts";
-import { overviewPage } from "./pages/overview.ts";
+import { API, ArtistRef, DropType, Song, stupidErrorAlert, zArtistTypes, zObjectId } from "../../spec/mod.ts";
+
+import { templateArtwork } from "../../assets/imports.ts";
+import languages from "../../data/language.json" with { type: "json" };
+import { EditArtistsDialog, ManageSongs } from "../music/views/table.ts";
 
 await RegisterAuthRefresh();
+
+const creationState = asRefRecord({
+    _id: <string | undefined> undefined,
+    gtin: <string | undefined> undefined,
+    title: <string | undefined> undefined,
+    release: <string | undefined> undefined,
+    language: <string | undefined> undefined,
+    artists: <ArtistRef[]> [],
+    primaryGenre: <string | undefined> undefined,
+    secondaryGenre: <string | undefined> undefined,
+    compositionCopyright: <string | undefined> undefined,
+    soundRecordingCopyright: <string | undefined> undefined,
+    artwork: <string | undefined> undefined,
+    artworkData: <string | undefined> undefined,
+    uploadingSongs: <Record<string, number>[]> [],
+    songs: <Song[]> [],
+    comments: <string | undefined> undefined,
+    user: <string | undefined> undefined,
+    type: <DropType | undefined> undefined,
+});
+
+const genres = asRefRecord({
+    primary: <string[]> [],
+    secondary: <Record<string, string[]>> {},
+});
 
 const mainRoute = createRoute({
     path: "/c/music/edit",
@@ -16,9 +40,29 @@ const mainRoute = createRoute({
         id: zObjectId,
     },
     events: {
-        onActive: () => {
-            localStorage.setItem("temp-id", mainRoute.search.id);
-            overviewPage.route.navigate({});
+        onActive: async () => {
+            const id = mainRoute.search.id;
+            localStorage.setItem("temp-id", id);
+            await API.getIdByDropsByMusic({ path: { id: id } }).then(stupidErrorAlert)
+                .then(async (drop) => {
+                    creationState.gtin.setValue(drop.gtin);
+                    creationState.title.setValue(drop.title);
+                    creationState.release.setValue(drop.release);
+                    creationState.language.setValue(drop.language);
+                    creationState.artists.setValue(drop.artists ?? [{ type: zArtistTypes.enum.PRIMARY, _id: null! }]);
+                    creationState.primaryGenre.setValue(drop.primaryGenre);
+                    creationState.secondaryGenre.setValue(drop.secondaryGenre);
+                    creationState.compositionCopyright.setValue(drop.compositionCopyright ?? "BBN Music (via bbn.one)");
+                    creationState.soundRecordingCopyright.setValue(drop.soundRecordingCopyright ?? "BBN Music (via bbn.one)");
+                    creationState.artwork.setValue(drop.artwork);
+                    creationState.artworkData.setValue(drop.artwork ? await API.getArtworkByDropByMusic({ path: { dropId: id } }).then((x) => URL.createObjectURL(x.data)) : templateArtwork);
+                    creationState.songs.setValue(drop.songs ?? []);
+                    creationState.comments.setValue(drop.comments);
+                });
+            await API.getGenresByMusic().then(stupidErrorAlert).then((x) => {
+                genres.primary.setValue(x.primary);
+                genres.secondary.setValue(x.secondary);
+            });
         },
     },
 });
@@ -30,7 +74,26 @@ appendBody(
             FullWidthSection(
                 DynaNavigation("Music"),
             ),
-            Navigation(),
+            Grid(
+                Grid(
+                    Label("Edit Drop").setTextSize("3xl").setFontWeight("bold"),
+                    creationState.artworkData.map((artwork) => showPreviewImage({ artwork: artwork, _id: localStorage.getItem("temp-id")! })).value.setRadius("large").setWidth("200px").setCssStyle("overflow", "hidden"),
+                    TextInput(creationState.title, "Title"),
+                    Grid(
+                        DateInput(creationState.release, "Release Date"),
+                        DropDown(Object.keys(languages), creationState.language, "Language").setValueRender((x) => (languages as Record<string, string>)[x]),
+                    ).setEvenColumns(2),
+                    SecondaryButton("Artists").onClick(() => {
+                        sheetStack.addSheet(EditArtistsDialog(creationState.artists));
+                    }),
+                    Grid(
+                        genres.primary.map((_) => DropDown(genres.primary, creationState.primaryGenre, "Primary Genre")).value,
+                        creationState.primaryGenre.map((primaryGenre) => DropDown(primaryGenre ? genres.secondary.getValue()[primaryGenre] : [], creationState.secondaryGenre, "Secondary Genre")).value,
+                    ).setEvenColumns(2),
+                ).setGap(),
+                ManageSongs(creationState.songs, creationState.primaryGenre, genres, creationState.artists),
+                TextInput(creationState.comments, "Comments"),
+            ).setGap(),
         ),
     ),
 );
