@@ -486,7 +486,10 @@ export const zGetIdByShareByDropsByMusicResponse = zShare;
 
 export const zGetFulldropByMusicResponse = z.array(zFullDrop);
 
-export const zGetFirstByGenresByMusicResponse = z.array(z.string());
+export const zGetGenresByMusicResponse = z.object({
+    primary: z.array(z.string()),
+    secondary: z.object({})
+});
 
 export const zGetSongsByMusicResponse = z.array(zSong);
 
